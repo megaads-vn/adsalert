@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
+
 use Illuminate\Http\Response;
 
 class BaseController extends \Laravel\Lumen\Routing\Controller
@@ -29,7 +29,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         $retVal->setTime(0, 0, 0);
         return $retVal;
     }
-    protected function sendRequest($url, $method = "GET", $data = [])
+    protected function sendRequest($url, $method = "GET", $data = [], $async = false)
     {
         $channel = curl_init();
         curl_setopt($channel, CURLOPT_URL, $url);
@@ -37,6 +37,11 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         curl_setopt($channel, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($channel, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        if ($async) {
+            curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
+        }
         $response = curl_exec($channel);
         curl_close($channel);
         $responseInJson = json_decode($response);
@@ -44,6 +49,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
     }
     public function sendEmail($to, $subject, $content)
     {
+        $retval = false;
         $emailService = env('MAILER_URL');
         $token = $this->getMailerToken($emailService);
         if (!empty($token)) {
@@ -53,11 +59,10 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
             $emailData['name'] = 'Megaas AdsAlert';
             $emailData['content'] = $content;
             $emailData['token'] = $token;
-            $result = $this->sendRequest($emailService . '/api/send-mail', "POST", $emailData);
-            return true;
+            $this->sendRequest($emailService . '/api/send-mail', "POST", $emailData, true);
+            $retval = true;
         }
-
-        return false;
+        return $retval;
     }
 
     private function getMailerToken($emailService)

@@ -10,12 +10,14 @@ class AdsController extends BaseController
 {
     public function unapprove(Request $request)
     {
-        $unapprovedAds = $request->input('count');
+        $unapproved = $request->input('count');
         $account = $request->input('account');
         $key = 'adwords:unapproved_ads:' . $account;
-        $lastUnapprovedAds = Cache::get($key, 0);
-        Cache::forever($key, $unapprovedAds);
-        if ($lastUnapprovedAds < $unapprovedAds) {
+        $lastUnapproved = Cache::get($key, 0);
+        Cache::forever($key, $unapproved);
+        \Log::info("Checking Unapproved ads - Account: " . $account . ", lastUnapproved: " . $lastUnapproved . ", unapproved: " . $unapproved);
+        if ($lastUnapproved < $unapproved) {
+            \Log::info("Notify Unapproved ads");
             $this->sendEmail(env('MAIL_TO'), $account . ' has REJECTED ADS', '');
         }
         return $this->success(null);
