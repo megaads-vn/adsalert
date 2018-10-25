@@ -56,7 +56,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
             $emailData = [];
             $emailData['to'] = $to;
             $emailData['subject'] = $subject;
-            $emailData['name'] = 'Megaas AdsAlert';
+            $emailData['name'] = 'Megaads AdsAlert';
             $emailData['content'] = $content;
             $emailData['token'] = $token;
             $this->sendRequest($emailService . '/api/send-mail', "POST", $emailData, true);
