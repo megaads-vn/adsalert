@@ -16,7 +16,7 @@ class AdsController extends BaseController
         $lastUnapproved = Cache::get($key, -1);
         Cache::forever($key, $unapproved);
         \Log::info("Checking Unapproved ads - Account: " . $account . ", lastUnapproved: " . $lastUnapproved . ", unapproved: " . $unapproved);
-        if (lastUnapproved >= 0 && $lastUnapproved < $unapproved) {
+        if ($lastUnapproved >= 0 && $lastUnapproved < $unapproved) {
             \Log::info("Notify Unapproved ads");
             $this->sendEmail(env('MAIL_TO'), $account . ' has REJECTED ADS', '');
         }
