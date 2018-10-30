@@ -19,6 +19,7 @@ class AdsController extends BaseController
         if ($lastUnapproved >= 0 && $lastUnapproved < $unapproved) {
             \Log::info("Notify Unapproved ads");
             $this->sendEmail(env('MAIL_TO'), $account . ' has REJECTED ADS', '');
+            $this->callPhone(env('CALL_TO'));
         }
         return $this->success(null);
     }

@@ -65,6 +65,13 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         return $retval;
     }
 
+    public function callPhone($to)
+    {
+        $phoneCallServiceURL = env('PHONE_CALL_SERVICE_URL');
+        $phoneCallServiceToken = env('PHONE_CALL_SERVICE_TOKEN');
+        $this->sendRequest($phoneCallServiceURL . "?token=" . $phoneCallServiceToken . "&to=" . $to, "GET", [], true);
+    }
+
     private function getMailerToken($emailService)
     {
         $payload = array(
