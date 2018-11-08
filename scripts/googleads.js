@@ -1,5 +1,7 @@
 var ACCOUNT = "TEST123";
 var SERVICE_URL = "http://adsalert.agoz.me/ads/unapprove";
+var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
+var CALL_TO = "+84123456789,+84123456780";
 
 function main() {
     var accountSelector = MccApp.accounts();//.withIds(["744-728-6416"]);
@@ -73,7 +75,9 @@ function finish(results) {
         "payload": {
             "account": ACCOUNT,
             "count": unApprovedAds,
-            "message": message
+            "message": message,
+            "mailTo": MAIL_TO,
+            "callTo": CALL_TO
         }
     };
     var response = UrlFetchApp.fetch(SERVICE_URL, options);
