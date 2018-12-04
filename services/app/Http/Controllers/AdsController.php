@@ -31,4 +31,9 @@ class AdsController extends BaseController
         }
         return $this->success(null);
     }
+    
+    public function testRequestMonitor() {
+        $this->requestMonitor( ' tesst', 'tesst');
+        return $this->success(null);
+    }
 }
