@@ -84,4 +84,34 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         }
         return null;
     }
+
+    public function requestMonitor($subject, $content) {
+        $monitorUrl = env('MONITOR_URL');
+        $emailData = [];
+        $emailData['app'] = 'ads-alert-' . $subject;
+        $emailData['type'] = 'error';
+        $emailData['title'] = $subject;
+        $emailData['content'] = $content;
+        $emailData['token'] =  env('MONITOR_TOKEN');
+        $this->sendRequestMonitor($monitorUrl, "POST", $emailData, true);
+    }
+
+    protected function sendRequestMonitor($url, $method = "GET", $data = [], $async = false)
+    {
+        $channel = curl_init();
+        curl_setopt($channel, CURLOPT_URL, $url);
+        curl_setopt($channel, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($channel, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($channel, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($channel, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded"));
+        if ($async) {
+            curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
+        }
+        $response = curl_exec($channel);
+        curl_close($channel);
+        $responseInJson = json_decode($response);
+        return isset($responseInJson->result) ? $responseInJson->result : $responseInJson;
+    }
 }

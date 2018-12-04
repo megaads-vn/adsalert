@@ -27,6 +27,7 @@ class AdsController extends BaseController
             if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
                 $this->callPhone($callTo);
             }
+            $this->requestMonitor($account . ' has DISAPPROVED ADS', $message);
         }
         return $this->success(null);
     }
