@@ -15,3 +15,4 @@ $app->get('/', function () use ($app) {
     return "Megaads Adsalert service";
 });
 $app->post('/ads/unapprove', 'AdsController@unapprove');
+$app->post('/ads/not-increase-click', 'AdsController@notIncreaseClick');
