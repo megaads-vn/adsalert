@@ -24,11 +24,18 @@ function run() {
     return JSON.stringify(retval);
 }
 function finish(results) {
+    var campains = [];
+    for (var i = 0; i < results.length; i++) {
+        var returnValue = JSON.parse(results[i].getReturnValue());
+        if (returnValue.length > 0) {
+            campains.push(returnValue[0]);
+        }
+    }
     var options = {
         "method": "post",
         "payload": {
             "account": ACCOUNT,
-            "campaigns": results,
+            "campaigns": JSON.stringify(campains),
             "mailTo": MAIL_TO,
             "callTo": CALL_TO
         }
