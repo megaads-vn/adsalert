@@ -45,11 +45,11 @@ class AdsController extends BaseController
             $message = '';
             foreach ($campaigns as $campaign) {
                 $key = 'adwords:not_increase_click:' . $campaign->accountName . ':' . $campaign->campaignName;
-                $currentClickCount = $campaign->count;
-                $lastClickCount= Cache::get($key, -1);
-                Cache::forever($key, $currentClickCount);
-                \Log::info("Checking Campaigns doesn't increase click - Account: " . $account . ', Campaign:' . $campaign->campaignName . ", lastClickCount: " . $lastClickCount . ", currentClickCount: " . $currentClickCount);
-                if ($lastClickCount >= 0 && $lastClickCount == $currentClickCount) {
+                $currentClicks = $campaign->clicks;
+                $lastClicks= Cache::get($key, -1);
+                Cache::forever($key, $currentClicks);
+                \Log::info("Checking Campaigns doesn't increase click - Account: " . $account . ', Campaign:' . $campaign->campaignName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
+                if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
                     array_push($campaignsNotIncreaseClick, $campaign);
                 }
             }
@@ -96,7 +96,7 @@ class AdsController extends BaseController
             $message .= $campaign->campaignName;
             $message .= "</td>";
             $message .= "<td>";
-            $message .= $campaign->count;
+            $message .= $campaign->clicks;
             $message .= "</td>";
             $message .= "</tr>";
         }

@@ -14,28 +14,28 @@ function run() {
     var campIter = AdWordsApp.campaigns().withCondition('Status = ENABLED').get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var click = camp.getStatsFor("TODAY").getClicks();
+        var clicks = camp.getStatsFor("TODAY").getClicks();
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
-            "count": click
+            "clicks": clicks
         });
     }
     return JSON.stringify(retval);
 }
 function finish(results) {
-    var campains = [];
+    var campaigns = [];
     for (var i = 0; i < results.length; i++) {
         var returnValue = JSON.parse(results[i].getReturnValue());
         if (returnValue.length > 0) {
-            campains.push(returnValue[0]);
+            campaigns.push(returnValue[0]);
         }
     }
     var options = {
         "method": "post",
         "payload": {
             "account": ACCOUNT,
-            "campaigns": JSON.stringify(campains),
+            "campaigns": JSON.stringify(campaigns),
             "mailTo": MAIL_TO,
             "callTo": CALL_TO
         }
