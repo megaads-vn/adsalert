@@ -38,7 +38,6 @@ class AdsController extends BaseController
         try {
             $campaigns = $request->input('campaigns');
             $campaigns = json_decode($campaigns);
-            $account = $request->input('account');
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
             $campaignsNotIncreaseClick = [];
@@ -48,7 +47,7 @@ class AdsController extends BaseController
                 $currentClicks = $campaign->clicks;
                 $lastClicks= Cache::get($key, -1);
                 Cache::forever($key, $currentClicks);
-                \Log::info("Checking Campaigns doesn't increase click - Account: " . $account . ', Campaign:' . $campaign->campaignName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
+                \Log::info("Checking Campaigns doesn't increase click - Campaign:" . $campaign->campaignName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
                 if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
                     array_push($campaignsNotIncreaseClick, $campaign);
                 }
@@ -58,12 +57,12 @@ class AdsController extends BaseController
                 $message = $this->getDisplayMessage('Clicks', $campaignsNotIncreaseClick);
                 \Log::info("Campaigns doesn\'t increase click");
                 if ($mailTo != '') {
-                    $this->sendEmail($mailTo, $account . ' has CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
+                    $this->sendEmail($mailTo, 'CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
                 }
                 if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
                     $this->callPhone($callTo);
                 }
-                $this->requestMonitor($account . ' has CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
+                $this->requestMonitor('CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
             }
     
             return $message;

@@ -1,4 +1,3 @@
-var ACCOUNT = "TEST123";
 var SERVICE_URL = "http://adsalert.agoz.me/ads/not-increase-click";
 var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
 var CALL_TO = "+84123456789,+84123456780";
@@ -28,13 +27,12 @@ function finish(results) {
     for (var i = 0; i < results.length; i++) {
         var returnValue = JSON.parse(results[i].getReturnValue());
         if (returnValue.length > 0) {
-            campaigns.push(returnValue[0]);
+            campaigns = campaigns.concat(returnValue);
         }
     }
     var options = {
         "method": "post",
         "payload": {
-            "account": ACCOUNT,
             "campaigns": JSON.stringify(campaigns),
             "mailTo": MAIL_TO,
             "callTo": CALL_TO
