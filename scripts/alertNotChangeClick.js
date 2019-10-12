@@ -10,7 +10,10 @@ function main() {
 function run() {
     var retval = [];
     var accountName = AdWordsApp.currentAccount().getName();
-    var campIter = AdWordsApp.campaigns().withCondition('Status = ENABLED').get();
+    var campIter = AdWordsApp.campaigns()
+        .withCondition('Status = ENABLED')
+        .withCondition('CombinedApprovalStatus IN [APPROVED, APPROVED_LIMITED, UNDER_REVIEW]')
+        .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
         var clicks = camp.getStatsFor("TODAY").getClicks();
