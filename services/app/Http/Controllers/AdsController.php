@@ -36,42 +36,47 @@ class AdsController extends BaseController
     public function notIncreaseClick(Request $request)
     {
         try {
-            $campaigns = $request->input('campaigns');
-            $campaigns = json_decode($campaigns);
+            $accounts = $request->input('accounts');
+            $accounts = json_decode($accounts);
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
-            $campaignsNotIncreaseClick = [];
+            $accountsNotIncreaseClick = [];
             $message = '';
-            foreach ($campaigns as $campaign) {
-                $key = 'adwords:not_increase_click:' . $campaign->accountName . ':' . $campaign->campaignName;
-                $currentClicks = $campaign->clicks;
-                $lastClicks= Cache::get($key, -1);
-                Cache::forever($key, $currentClicks);
-                \Log::info("Checking Campaigns doesn't increase click - Campaign:" . $campaign->campaignName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
-                if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
-                    array_push($campaignsNotIncreaseClick, $campaign);
+            foreach ($accounts as $account) {
+                $key = 'adwords:not_increase_click:' . $account->accountName;
+                $currentClicks = $account->clicks;
+                $cacheAccount= Cache::get($key, null);
+                $account->status = 'active';
+                if (!empty($cacheAccount) && is_object($cacheAccount)) {
+                    $lastClicks = $cacheAccount->clicks;
+                    \Log::info("Checking accounts blocked - account:" . $account->accountName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
+                    if ($lastClicks >= 0 && $lastClicks == $currentClicks && $cacheAccount->status == 'active') {
+                        $account->status = 'blocked';
+                        array_push($accountsNotIncreaseClick, $account);
+                    }
                 }
+                Cache::forever($key, $account);
             }
     
-            if (count($campaignsNotIncreaseClick) > 0) {
-                $message = $this->getDisplayMessage('Clicks', $campaignsNotIncreaseClick);
-                \Log::info("Campaigns doesn\'t increase click");
+            if (count($accountsNotIncreaseClick) > 0) {
+                $message = $this->getDisplayMessage('Clicks', $accountsNotIncreaseClick);
+                \Log::info("accounts blocked");
                 if ($mailTo != '') {
-                    $this->sendEmail($mailTo, 'CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
+                    $this->sendEmail($mailTo, 'Accounts Blocked', $message);
                 }
                 if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
                     $this->callPhone($callTo);
                 }
-                $this->requestMonitor('CAMPAIGNS DOESN\'T INCREASE CLICK', $message);
+                $this->requestMonitor('Accounts Blocked', $message);
             }
     
             return $message;
         } catch (\Exception $ex) {
-            return $ex->getMessage();
+            return $ex->getMessage() . ' : ' . $ex->getLine();
         }
     }
 
-    public function getDisplayMessage($type, $campaignList)
+    public function getDisplayMessage($type, $accountList)
     {
         $message = "<div>";
         $message .= "<table>";
@@ -80,22 +85,16 @@ class AdsController extends BaseController
         $message .= "Account";
         $message .= "</th>";
         $message .= "<th>";
-        $message .= "Campaign";
-        $message .= "</th>";
-        $message .= "<th>";
         $message .= $type;
         $message .= "</th>";
         $message .= "</tr>";
-        foreach ($campaignList as $campaign) {
+        foreach ($accountList as $account) {
             $message .= "<tr>";
             $message .= "<td>";
-            $message .= $campaign->accountName;
+            $message .= $account->accountName;
             $message .= "</td>";
             $message .= "<td>";
-            $message .= $campaign->campaignName;
-            $message .= "</td>";
-            $message .= "<td>";
-            $message .= $campaign->clicks;
+            $message .= $account->clicks;
             $message .= "</td>";
             $message .= "</tr>";
         }

@@ -12,7 +12,6 @@ function run() {
     var accountName = AdWordsApp.currentAccount().getName();
     var campIter = AdWordsApp.campaigns()
         .withCondition('Status = ENABLED')
-        .withCondition('CombinedApprovalStatus IN [APPROVED, APPROVED_LIMITED, UNDER_REVIEW]')
         .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
@@ -26,17 +25,25 @@ function run() {
     return JSON.stringify(retval);
 }
 function finish(results) {
-    var campaigns = [];
+    var accounts = [];
     for (var i = 0; i < results.length; i++) {
         var returnValue = JSON.parse(results[i].getReturnValue());
         if (returnValue.length > 0) {
-            campaigns = campaigns.concat(returnValue);
+            var clicks = 0;
+            for (var j = 0; j < returnValue.length; j++) {
+                clicks += returnValue[j].clicks;
+            }
+            accounts.push({
+                accountName: returnValue[0].accountName,
+                clicks: clicks
+            })
         }
     }
+    Logger.log("Accounts: " + accounts);
     var options = {
         "method": "post",
         "payload": {
-            "campaigns": JSON.stringify(campaigns),
+            "accounts": JSON.stringify(accounts),
             "mailTo": MAIL_TO,
             "callTo": CALL_TO
         }
