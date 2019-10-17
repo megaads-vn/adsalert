@@ -43,7 +43,7 @@ class AdsController extends BaseController
             $accountsNotIncreaseClick = [];
             $message = '';
             foreach ($accounts as $account) {
-                $key = 'adwords:not_increase_click:' . $account->accountName;
+                $key = 'adwords:blocked_account:' . $account->accountName;
                 $currentClicks = $account->clicks;
                 $cacheAccount= Cache::get($key, null);
                 $account->status = 'active';
