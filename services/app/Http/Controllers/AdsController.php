@@ -49,10 +49,15 @@ class AdsController extends BaseController
                 $account->status = 'active';
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $lastClicks = $cacheAccount->clicks;
+                    $account->status = $cacheAccount->status;
                     \Log::info("Checking accounts blocked - account:" . $account->accountName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
-                    if ($lastClicks >= 0 && $lastClicks == $currentClicks && $cacheAccount->status == 'active') {
-                        $account->status = 'blocked';
-                        array_push($accountsNotIncreaseClick, $account);
+                    if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
+                        if ($cacheAccount->status == 'active') {
+                            $account->status = 'blocked';
+                            array_push($accountsNotIncreaseClick, $account);
+                        }
+                    } else {
+                        $account->status = 'active';
                     }
                 }
                 Cache::forever($key, $account);
@@ -69,7 +74,6 @@ class AdsController extends BaseController
                 }
                 $this->requestMonitor('Accounts Blocked', $message);
             }
-    
             return $message;
         } catch (\Exception $ex) {
             return $ex->getMessage() . ' : ' . $ex->getLine();
