@@ -1,3 +1,4 @@
+var USERNAME = 'TEST123';
 var SERVICE_URL = "http://adsalert.agoz.me/ads/not-increase-click";
 var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
 var CALL_TO = "+84123456789,+84123456780";
@@ -43,6 +44,7 @@ function finish(results) {
     var options = {
         "method": "post",
         "payload": {
+            'username': USERNAME,
             "accounts": JSON.stringify(accounts),
             "mailTo": MAIL_TO,
             "callTo": CALL_TO

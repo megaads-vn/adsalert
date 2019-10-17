@@ -38,6 +38,7 @@ class AdsController extends BaseController
         try {
             $accounts = $request->input('accounts');
             $accounts = json_decode($accounts);
+            $username = $request->input('username', '');
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
             $accountsNotIncreaseClick = [];
@@ -50,7 +51,7 @@ class AdsController extends BaseController
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $lastClicks = $cacheAccount->clicks;
                     $account->status = $cacheAccount->status;
-                    \Log::info("Checking accounts blocked - account:" . $account->accountName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
+                    \Log::info("Checking accounts were blocked - account:" . $account->accountName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
                     if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
                         if ($cacheAccount->status == 'active') {
                             $account->status = 'blocked';
@@ -65,14 +66,14 @@ class AdsController extends BaseController
     
             if (count($accountsNotIncreaseClick) > 0) {
                 $message = $this->getDisplayMessage('Clicks', $accountsNotIncreaseClick);
-                \Log::info("accounts blocked");
+                \Log::info($username . ' has BLOCKED ACCOUNTS');
                 if ($mailTo != '') {
-                    $this->sendEmail($mailTo, 'Accounts Blocked', $message);
+                    $this->sendEmail($mailTo, $username . ' has BLOCKED ACCOUNTS', $message);
                 }
                 if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
                     $this->callPhone($callTo);
                 }
-                $this->requestMonitor('Accounts Blocked', $message);
+                $this->requestMonitor($username . ' has BLOCKED ACCOUNTS', $message);
             }
             return $message;
         } catch (\Exception $ex) {
