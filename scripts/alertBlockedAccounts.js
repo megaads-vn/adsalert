@@ -1,5 +1,5 @@
 var USERNAME = 'TEST123';
-var SERVICE_URL = "http://adsalert.agoz.me/ads/not-increase-click";
+var SERVICE_URL = "http://adsalert.agoz.me/ads/blocked";
 var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
 var CALL_TO = "+84123456789,+84123456780";
 
@@ -16,11 +16,11 @@ function run() {
         .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var clicks = camp.getStatsFor("TODAY").getClicks();
+        var impressions = camp.getStatsFor("TODAY").getImpressions();
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
-            "clicks": clicks
+            "impressions": impressions
         });
     }
     return JSON.stringify(retval);
@@ -30,13 +30,13 @@ function finish(results) {
     for (var i = 0; i < results.length; i++) {
         var returnValue = JSON.parse(results[i].getReturnValue());
         if (returnValue.length > 0) {
-            var clicks = 0;
+            var impressions = 0;
             for (var j = 0; j < returnValue.length; j++) {
-                clicks += returnValue[j].clicks;
+                impressions += returnValue[j].impressions;
             }
             accounts.push({
                 accountName: returnValue[0].accountName,
-                clicks: clicks
+                impressions: impressions
             })
         }
     }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\BaseController;
+use Redis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Redis;
+use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\BaseController;
 
 class AdsController extends BaseController
 {
@@ -33,7 +34,7 @@ class AdsController extends BaseController
         return $this->success(null);
     }
 
-    public function notIncreaseClick(Request $request)
+    public function blocked(Request $request)
     {
         try {
             $accounts = $request->input('accounts');
@@ -41,21 +42,21 @@ class AdsController extends BaseController
             $username = $request->input('username', '');
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
-            $accountsNotIncreaseClick = [];
+            $accountsNotIncreaseImpressions = [];
             $message = '';
             foreach ($accounts as $account) {
                 $key = 'adwords:blocked_account:' . $account->accountName;
-                $currentClicks = $account->clicks;
+                $currentImpressions = $account->impressions;
                 $cacheAccount= Cache::get($key, null);
                 $account->status = 'active';
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
-                    $lastClicks = $cacheAccount->clicks;
+                    $lastImpressions = $cacheAccount->impressions;
                     $account->status = $cacheAccount->status;
-                    \Log::info("Checking accounts were blocked - account:" . $account->accountName . ", lastClicks: " . $lastClicks . ", currentClicks: " . $currentClicks);
-                    if ($lastClicks >= 0 && $lastClicks == $currentClicks) {
+                    \Log::info("Checking accounts were blocked - account:" . $account->accountName . ", lastImpressions: " . $lastImpressions . ", currentImpressions: " . $currentImpressions);
+                    if ($lastImpressions >= 0 && $lastImpressions == $currentImpressions) {
                         if ($cacheAccount->status == 'active') {
                             $account->status = 'blocked';
-                            array_push($accountsNotIncreaseClick, $account);
+                            array_push($accountsNotIncreaseImpressions, $account);
                         }
                     } else {
                         $account->status = 'active';
@@ -64,8 +65,8 @@ class AdsController extends BaseController
                 Cache::forever($key, $account);
             }
     
-            if (count($accountsNotIncreaseClick) > 0) {
-                $message = $this->getDisplayMessage('Clicks', $accountsNotIncreaseClick);
+            if (count($accountsNotIncreaseImpressions) > 0) {
+                $message = $this->getDisplayMessage($accountsNotIncreaseImpressions);
                 \Log::info($username . ' has BLOCKED ACCOUNTS');
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has BLOCKED ACCOUNTS', $message);
@@ -81,7 +82,7 @@ class AdsController extends BaseController
         }
     }
 
-    public function getDisplayMessage($type, $accountList)
+    public function getDisplayMessage($accountList)
     {
         $message = "<div>";
         $message .= "<table>";
@@ -89,17 +90,11 @@ class AdsController extends BaseController
         $message .= "<th>";
         $message .= "Account";
         $message .= "</th>";
-        $message .= "<th>";
-        $message .= $type;
-        $message .= "</th>";
         $message .= "</tr>";
         foreach ($accountList as $account) {
             $message .= "<tr>";
             $message .= "<td>";
             $message .= $account->accountName;
-            $message .= "</td>";
-            $message .= "<td>";
-            $message .= $account->clicks;
             $message .= "</td>";
             $message .= "</tr>";
         }
