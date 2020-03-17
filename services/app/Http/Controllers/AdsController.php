@@ -49,18 +49,27 @@ class AdsController extends BaseController
                 $currentImpressions = $account->impressions;
                 $cacheAccount= Cache::get($key, null);
                 $account->status = 'active';
+                $account->percentChange = 0;
+                $account->impressionChange = 0;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $lastImpressions = $cacheAccount->impressions;
                     $account->status = $cacheAccount->status;
+                    $account->percentChange = $cacheAccount->percentChange;
+                    $account->impressionChange = $cacheAccount->impressionChange;
                     \Log::info("Checking accounts were blocked - account:" . $account->accountName . ", lastImpressions: " . $lastImpressions . ", currentImpressions: " . $currentImpressions);
+                    $impressionChange = abs($currentImpressions - $lastImpressions);
+                    $percentChange = $impressionChange / $lastImpressions * 100;
                     if ($lastImpressions >= 0 && $lastImpressions == $currentImpressions) {
-                        if ($cacheAccount->status == 'active') {
+                        $condition = ($account->percentChange >= 5 || $account->impressionChange >= 50) || $account->percentChange == 0;
+                        if ($cacheAccount->status == 'active' && $condition) {
                             $account->status = 'blocked';
                             array_push($accountsNotIncreaseImpressions, $account);
                         }
                     } else {
                         $account->status = 'active';
                     }
+                    $account->percentChange = $percentChange;
+                    $account->impressionChange = $impressionChange;
                 }
                 Cache::forever($key, $account);
             }
