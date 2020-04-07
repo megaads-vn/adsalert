@@ -91,7 +91,48 @@ class AdsController extends BaseController
         }
     }
 
-    public function getDisplayMessage($accountList)
+    public function cost(Request $request)
+    {
+        if ($request->has('clearCache')) {
+            Cache::flush();
+        }
+        try {
+            $accounts = $request->input('accounts');
+            $accounts = json_decode($accounts);
+            $username = $request->input('username', '');
+            $mailTo = $request->input('mailTo', '');
+            $callTo = $request->input('callTo', '');
+            $accountOverCosts = [];
+            $message = '';
+            foreach ($accounts as $account) {
+                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName;
+                $cacheAccount= Cache::get($key, null);
+                if (!empty($cacheAccount) && is_object($cacheAccount)) {
+                    if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {
+                        $accountOverCosts[] = $account;
+                    }
+                }
+                Cache::forever($key, $account);
+            }
+    
+            if (count($accountOverCosts) > 0) {
+                $message = $this->getDisplayMessage($accountOverCosts, true);
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST');
+                if ($mailTo != '') {
+                    $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST', $message);
+                }
+                if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
+                    $this->callPhone($callTo);
+                }
+                $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST', $message);
+            }
+            return $message;
+        } catch (\Exception $ex) {
+            return $ex->getMessage() . ' : ' . $ex->getLine();
+        }
+    }
+
+    public function getDisplayMessage($accountList, $isDisplayCampaign = false)
     {
         $message = "<div>";
         $message .= "<table>";
@@ -99,12 +140,22 @@ class AdsController extends BaseController
         $message .= "<th>";
         $message .= "Account";
         $message .= "</th>";
+        if ($isDisplayCampaign) {
+            $message .= "<th>";
+            $message .= "Campaign";
+            $message .= "</th>";
+        }
         $message .= "</tr>";
         foreach ($accountList as $account) {
             $message .= "<tr>";
             $message .= "<td>";
             $message .= $account->accountName;
             $message .= "</td>";
+            if ($isDisplayCampaign) {
+                $message .= "<td>";
+                $message .= $account->campaignName;
+                $message .= "</td>";
+            }
             $message .= "</tr>";
         }
         $message .= "</table>";

@@ -16,3 +16,4 @@ $app->get('/', function () use ($app) {
 });
 $app->post('/ads/unapprove', 'AdsController@unapprove');
 $app->post('/ads/blocked', 'AdsController@blocked');
+$app->post('/ads/cost', 'AdsController@cost');
