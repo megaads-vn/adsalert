@@ -16,7 +16,7 @@ function run() {
         .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var cost = camp.getStatsFor("ALL_TIME").getCost();
+        var cost = camp.getStatsFor("LAST_30_DAYS").getCost();
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
