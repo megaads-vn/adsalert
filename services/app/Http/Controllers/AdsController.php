@@ -105,7 +105,7 @@ class AdsController extends BaseController
             $accountOverCosts = [];
             $message = '';
             foreach ($accounts as $account) {
-                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName;
+                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {

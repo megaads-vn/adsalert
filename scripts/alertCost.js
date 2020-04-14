@@ -20,6 +20,7 @@ function run() {
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
+            "campaignId": camp.getId(),
             "cost": cost
         });
     }
@@ -33,9 +34,10 @@ function finish(results) {
         if (returnValue.length > 0) {
             for (var j = 0; j < returnValue.length; j++) {
                 accounts.push({
-                    accountName: returnValue[0].accountName,
-                    campaignName: returnValue[0].campaignName,
-                    cost: returnValue[0].cost
+                    accountName: returnValue[j].accountName,
+                    campaignName: returnValue[j].campaignName,
+                    campaignId: returnValue[j].campaignId,
+                    cost: returnValue[j].cost
                 });
             }
         }
