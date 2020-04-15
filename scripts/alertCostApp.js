@@ -8,6 +8,15 @@ function main() {
     finish(results);
 }
 
+function getDate(date)
+{
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    month = month > 9 ? month : '0' + month;
+    var day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+    return year + '' + month + '' + day;
+}
+
 function run() {
     var retval = [];
     var accountName = AdWordsApp.currentAccount().getName();
@@ -16,7 +25,13 @@ function run() {
         .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var cost = camp.getStatsFor("LAST_30_DAYS").getCost();
+        var date = new Date();
+        date.setDate(date.getDate() + 1);
+        var today = getDate(date);
+        date.setDate(date.getDate() - 1);
+        date.setDate(date.getDate() - 30);
+        var lastMonth = getDate(date);
+        var cost = camp.getStatsFor(lastMonth, today).getCost();
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
