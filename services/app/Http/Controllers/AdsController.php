@@ -43,7 +43,7 @@ class AdsController extends BaseController
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
             $accountsNotIncreaseImpressions = [];
-            $message = '';
+            $message = 'Don\'t have any blocked account';
             foreach ($accounts as $account) {
                 $key = 'adwords:blocked_account:' . $account->accountName;
                 $currentImpressions = $account->impressions;
@@ -103,7 +103,7 @@ class AdsController extends BaseController
             $mailTo = $request->input('mailTo', '');
             $callTo = $request->input('callTo', '');
             $accountOverCosts = [];
-            $message = '';
+            $message = 'Don\'t have any campaigns reach limit';
             foreach ($accounts as $account) {
                 $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
