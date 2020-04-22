@@ -119,7 +119,7 @@ class AdsController extends BaseController
             }
     
             if (count($accountOverCosts) > 0) {
-                $message = $this->getDisplayMessage($accountOverCosts, true);
+                $message = $this->getDisplayCostMessage($accountOverCosts, true);
                 \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST');
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST', $message);
@@ -159,6 +159,44 @@ class AdsController extends BaseController
                 $message .= $account->campaignName;
                 $message .= "</td>";
             }
+            $message .= "</tr>";
+        }
+        $message .= "</table>";
+        $message .= "</div>";
+
+        return $message;
+    }
+
+    public function getDisplayCostMessage($accountList, $isDisplayCampaign = false)
+    {
+        $message = "<div>";
+        $message .= "<table>";
+        $message .= "<tr>";
+        $message .= "<th>";
+        $message .= "Account";
+        $message .= "</th>";
+        if ($isDisplayCampaign) {
+            $message .= "<th>";
+            $message .= "Campaign";
+            $message .= "</th>";
+        }
+        $message .= "<th>";
+        $message .= "Cost";
+        $message .= "</th>";
+        $message .= "</tr>";
+        foreach ($accountList as $account) {
+            $message .= "<tr>";
+            $message .= "<td>";
+            $message .= $account->accountName;
+            $message .= "</td>";
+            if ($isDisplayCampaign) {
+                $message .= "<td>";
+                $message .= $account->campaignName;
+                $message .= "</td>";
+            }
+            $message .= "<td>";
+            $message .= $account->cost;
+            $message .= "</td>";
             $message .= "</tr>";
         }
         $message .= "</table>";
