@@ -32,6 +32,10 @@ function run() {
         date.setDate(date.getDate() - 30);
         var lastMonth = getDate(date);
         var cost = camp.getStatsFor(lastMonth, today).getCost();
+        var campName = camp.getName();
+        if (cost >= 200000 && !campName.toLowerCase().includes('ok')) {
+            camp.pause();
+        }
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
