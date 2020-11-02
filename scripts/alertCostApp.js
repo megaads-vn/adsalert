@@ -1,19 +1,11 @@
-var USERNAME = 'Megaads MCC - Khoan';
+var USERNAME = 'TEST123';
 var SERVICE_URL = "http://adsalert.agoz.me/ads/cost";
-var MAIL_TO = "phult.contact@gmail.com,khoan.mega";
-var CALL_TO = "";
+var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
+var CALL_TO = "+84123456789,+84123456780";
 
 function main() {
-    var accountSelector = MccApp.accounts(); //.withIds(["744-728-6416"]);
-    accountSelector.executeInParallel("run", "finish");
-}
-
-function getDate(date) {
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    month = month > 9 ? month : '0' + month;
-    var day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-    return year + '' + month + '' + day;
+    var results = run();
+    finish(results);
 }
 
 function run() {
@@ -24,42 +16,27 @@ function run() {
         .get();
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var date = new Date();
-        date.setDate(date.getDate() + 1);
-        var today = getDate(date);
-        date.setDate(date.getDate() - 1);
-        date.setDate(date.getDate() - 30);
-        var lastMonth = getDate(date);
-        var cost = camp.getStatsFor(lastMonth, today).getCost();
+        var cost = camp.getStatsFor("LAST_30_DAYS").getCost();
         retval.push({
             "accountName": accountName,
             "campaignName": camp.getName(),
             "campaignId": camp.getId(),
             "cost": cost
         });
-
-        var campName = camp.getName();
-        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
-            camp.pause();
-        }
     }
-    return JSON.stringify(retval);
+    return retval;
 }
 
 function finish(results) {
     var accounts = [];
     for (var i = 0; i < results.length; i++) {
-        var returnValue = JSON.parse(results[i].getReturnValue());
-        if (returnValue.length > 0) {
-            for (var j = 0; j < returnValue.length; j++) {
-                accounts.push({
-                    accountName: returnValue[j].accountName,
-                    campaignName: returnValue[j].campaignName,
-                    campaignId: returnValue[j].campaignId,
-                    cost: returnValue[j].cost
-                });
-            }
-        }
+        var returnValue = results[i];   
+        accounts.push({
+          accountName: returnValue.accountName,
+          campaignName: returnValue.campaignName,
+          campaignId: returnValue.campaignId,
+          cost: returnValue.cost
+        });
     }
     Logger.log("Accounts: " + JSON.stringify(accounts));
 

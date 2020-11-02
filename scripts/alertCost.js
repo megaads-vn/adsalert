@@ -1,15 +1,14 @@
-var USERNAME = 'TEST123';
+var USERNAME = 'Megaads MCC - Khoan';
 var SERVICE_URL = "http://adsalert.agoz.me/ads/cost";
-var MAIL_TO = "abc@gmail.com,xxx@gmail.com";
-var CALL_TO = "+84123456789,+84123456780";
+var MAIL_TO = "phult.contact@gmail.com,khoan.mega";
+var CALL_TO = "";
 
 function main() {
-    var accountSelector = MccApp.accounts();//.withIds(["744-728-6416"]);
+    var accountSelector = MccApp.accounts(); //.withIds(["744-728-6416"]);
     accountSelector.executeInParallel("run", "finish");
 }
 
-function getDate(date)
-{
+function getDate(date) {
     var year = date.getFullYear();
     var month = date.getMonth() + 1;
     month = month > 9 ? month : '0' + month;
@@ -38,6 +37,11 @@ function run() {
             "campaignId": camp.getId(),
             "cost": cost
         });
+
+        var campName = camp.getName();
+        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+            camp.pause();
+        }
     }
     return JSON.stringify(retval);
 }
