@@ -1,5 +1,6 @@
 var USERNAME = 'Megaads MCC - Khoan';
 var SERVICE_URL = "http://adsalert.agoz.me/ads/cost";
+var SERVICE_PAUSE_URL = "http://adsalert.agoz.me/ads/paused";
 var MAIL_TO = "phult.contact@gmail.com,khoan.mega";
 var CALL_TO = "";
 
@@ -22,6 +23,7 @@ function run() {
     var campIter = AdWordsApp.campaigns()
         .withCondition('Status = ENABLED')
         .get();
+    var pausedCamp = [];
     while (campIter.hasNext()) {
         var camp = campIter.next();
         var date = new Date();
@@ -31,17 +33,33 @@ function run() {
         date.setDate(date.getDate() - 30);
         var lastMonth = getDate(date);
         var cost = camp.getStatsFor(lastMonth, today).getCost();
-        retval.push({
+        var item = {
             "accountName": accountName,
             "campaignName": camp.getName(),
             "campaignId": camp.getId(),
             "cost": cost
-        });
+        };
+        retval.push(item);
 
         var campName = camp.getName();
         if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+            pausedCamp.push(item);
             camp.pause();
         }
+    }
+
+    if (pausedCamp.length > 0) {
+        var options = {
+            "method": "post",
+            "payload": {
+                'username': USERNAME,
+                "accounts": JSON.stringify(pausedCamp),
+                "mailTo": MAIL_TO,
+                "callTo": CALL_TO
+            }
+        };
+        var response = UrlFetchApp.fetch(SERVICE_PAUSE_URL, options);
+        Logger.log("UrlFetchApp response: " + response);
     }
     return JSON.stringify(retval);
 }

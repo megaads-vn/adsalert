@@ -113,6 +113,8 @@ class AdsController extends BaseController
                     if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {
                         $accountOverCosts[] = $account;
                     }
+                } elseif ($account->cost >= config('campaign.limitCost')) {
+                    $accountOverCosts[] = $account;
                 }
                 \Log::info($logMessage);
                 Cache::forever($key, $account);
@@ -201,6 +203,55 @@ class AdsController extends BaseController
         }
         $message .= "</table>";
         $message .= "</div>";
+
+        return $message;
+    }
+
+    public function getAlertPausedCampaginMessage($accountList)
+    {
+        $message = "<div>";
+        $message .= "<table>";
+        $message .= "<tr>";
+        $message .= "<th>";
+        $message .= "Account";
+        $message .= "</th>";
+        $message .= "<th>";
+        $message .= "Campaign";
+        $message .= "</th>";
+        $message .= "</tr>";
+        foreach ($accountList as $account) {
+            $message .= "<tr>";
+            $message .= "<td>";
+            $message .= $account->accountName;
+            $message .= "</td>";
+            $message .= "<td>";
+            $message .= $account->campaignName;
+            $message .= "</td>";
+            $message .= "</tr>";
+        }
+        $message .= "</table>";
+        $message .= "</div>";
+
+        return $message;
+    }
+
+    public function alertPausedCampagin(Request $request)
+    {
+        $accounts = $request->input('accounts');
+        $accounts = json_decode($accounts);
+        $username = $request->input('username', '');
+        $mailTo = $request->input('mailTo', '');
+        $callTo = $request->input('callTo', '');
+
+        $message = $this->getAlertPausedCampaginMessage($accounts, true);
+        \Log::info($username . ' has Paused Campaign');
+        if ($mailTo != '') {
+            $this->sendEmail($mailTo, $username . ' has PAUSED CAMPAIGN', $message);
+        }
+        if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
+            $this->callPhone($callTo);
+        }
+        $this->requestMonitor($username . ' has PAUSED CAMPAIGN', $message);
 
         return $message;
     }
