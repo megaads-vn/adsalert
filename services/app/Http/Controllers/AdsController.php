@@ -137,6 +137,63 @@ class AdsController extends BaseController
         }
     }
 
+    public function limitedBudget(Request $request)
+    {
+        try {
+            $accounts = $request->input('accounts');
+            $accounts = json_decode($accounts);
+            $username = $request->input('username', '');
+            $mailTo = $request->input('mailTo', '');
+            $callTo = $request->input('callTo', '');
+            $limitedBudgetCampaigns = [];
+            $message = '';
+            foreach ($accounts as $account) {
+                $key = 'adwords:limited_campagin:' . $account->campaignId;
+                $currentImpressions = $account->impressions;
+                $cacheAccount= Cache::get($key, null);
+                $account->status = 'active';
+                $account->percentChange = 0;
+                $account->impressionChange = 0;
+                if (!empty($cacheAccount) && is_object($cacheAccount)) {
+                    $lastImpressions = $cacheAccount->impressions;
+                    $account->status = $cacheAccount->status;
+                    $account->percentChange = $cacheAccount->percentChange;
+                    $account->impressionChange = $cacheAccount->impressionChange;
+                    \Log::info("Checking limited budget campaign - account:" . $account->accountName . ", lastImpressions: " . $lastImpressions . ", currentImpressions: " . $currentImpressions);
+                    $impressionChange = abs($currentImpressions - $lastImpressions);
+                    $percentChange = $impressionChange / $lastImpressions * 100;
+                    if ($lastImpressions >= 0 && $lastImpressions == $currentImpressions) {
+                        $condition = ($account->percentChange >= 5 || $account->impressionChange >= 30) || $account->percentChange == 0;
+                        if ($cacheAccount->status == 'active' && $condition) {
+                            $account->status = 'blocked';
+                            array_push($limitedBudgetCampaigns, $account);
+                        }
+                    } else {
+                        $account->status = 'active';
+                    }
+                    $account->percentChange = $percentChange;
+                    $account->impressionChange = $impressionChange;
+                }
+                Cache::forever($key, $account);
+            }
+    
+            if (count($limitedBudgetCampaigns) > 0) {
+                $message = $this->getDisplayMessage($limitedBudgetCampaigns, true);
+                \Log::info($username . ' has LIMITED BUGDGET CAMPAIGN');
+                if ($mailTo != '') {
+                    $this->sendEmail($mailTo, $username . ' has LIMITED BUGDGET CAMPAIGN', $message);
+                }
+                if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
+                    $this->callPhone($callTo);
+                }
+                $this->requestMonitor($username . ' has LIMITED BUGDGET CAMPAIGN', $message);
+            }
+            return $message;
+        } catch (\Exception $ex) {
+            return $ex->getMessage() . ' : ' . $ex->getLine();
+        }
+    }
+
     public function getDisplayMessage($accountList, $isDisplayCampaign = false)
     {
         $message = "<div>";
