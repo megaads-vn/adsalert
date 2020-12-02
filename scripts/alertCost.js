@@ -43,7 +43,7 @@ function run() {
 
         var campName = camp.getName();
         var oldCampName = campName;
-        var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
+        var regex = /\[([^\[\]]*)(ok|OK|Ok|oK)([^\[\]]*)\]/gm;
         campName = campName.replace(regex, '');
         if (cost >= 220000 && campName.toLowerCase().indexOf('ok') < 0) {
             Logger.log("Camp paused: " + oldCampName);
