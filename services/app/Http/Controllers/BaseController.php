@@ -81,6 +81,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         );
         $result = $this->sendRequest($emailService . '/auth/login', "POST", $payload);
         if (isset($result->token)) {
+            \Log::info('mailerToken', [$payload]);
             return $result->token;
         }
         return null;
