@@ -302,6 +302,7 @@ class AdsController extends BaseController
 
         $message = $this->getAlertPausedCampaginMessage($accounts, true);
         \Log::info($username . ' has Paused Campaign');
+        \Log::info('PAUSED CAMPAIGN', [$accounts]);
         if ($mailTo != '') {
             $this->sendEmail($mailTo, $username . ' has PAUSED CAMPAIGN', $message);
         }
