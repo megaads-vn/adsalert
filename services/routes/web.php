@@ -17,5 +17,7 @@ $app->get('/', function () use ($app) {
 $app->post('/ads/unapprove', 'AdsController@unapprove');
 $app->post('/ads/blocked', 'AdsController@blocked');
 $app->post('/ads/cost', 'AdsController@cost');
+$app->post('/ads/cost-usd', 'AdsController@costUsd');
+$app->post('/ads/cost-all-time', 'AdsController@costAllTime');
 $app->post('/ads/paused', 'AdsController@alertPausedCampagin');
 $app->post('/ads/limited-budget', 'AdsController@limitedBudget');

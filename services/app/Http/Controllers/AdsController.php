@@ -107,7 +107,7 @@ class AdsController extends BaseController
             foreach ($accounts as $account) {
                 $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = "Checking Limit Cost - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
                     if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {
@@ -122,14 +122,107 @@ class AdsController extends BaseController
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST');
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS');
                 if ($mailTo != '') {
-                    $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST', $message);
+                    $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $message);
                 }
                 if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
                     $this->callPhone($callTo);
                 }
-                $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST', $message);
+                $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $message);
+            }
+            return $message;
+        } catch (\Exception $ex) {
+            return $ex->getMessage() . ' : ' . $ex->getLine();
+        }
+    }
+
+    public function costAllTime(Request $request)
+    {
+        try {
+            $accounts = $request->input('accounts');
+            $accounts = json_decode($accounts);
+            $username = $request->input('username', '');
+            $mailTo = $request->input('mailTo', '');
+            $callTo = $request->input('callTo', '');
+            $accountOverCosts = [];
+            $message = 'Don\'t have any campaigns reach limit';
+            foreach ($accounts as $account) {
+                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $keyAllTime = 'adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $cacheAccountAllTime = Cache::get($keyAllTime, null);
+                $cacheAccount= Cache::get($key, null);
+                $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                if (!empty($cacheAccount) && is_object($cacheAccount) && !empty($cacheAccountAllTime) && is_object($cacheAccountAllTime)) {
+                    $logMessage .= ", Last Cost: " . $cacheAccountAllTime->cost;
+                    if (
+                        $cacheAccountAllTime->cost < config('campaign.limitCost') && 
+                        $account->cost >= config('campaign.limitCost') &&
+                        $cacheAccount->cost < config('campaign.limitCost')
+                    ) {
+                        $accountOverCosts[] = $account;
+                    }
+                }
+                \Log::info($logMessage);
+                Cache::forever($keyAllTime, $account);
+            }
+    
+            if (count($accountOverCosts) > 0) {
+                $message = $this->getDisplayCostMessage($accountOverCosts, true);
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME');
+                if ($mailTo != '') {
+                    $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $message);
+                }
+                if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
+                    $this->callPhone($callTo);
+                }
+                $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $message);
+            }
+            return $message;
+        } catch (\Exception $ex) {
+            return $ex->getMessage() . ' : ' . $ex->getLine();
+        }
+    }
+
+    public function costUsd(Request $request)
+    {
+        if ($request->has('clearCache')) {
+            Cache::flush();
+        }
+        try {
+            $accounts = $request->input('accounts');
+            $accounts = json_decode($accounts);
+            $username = $request->input('username', '');
+            $mailTo = $request->input('mailTo', '');
+            $callTo = $request->input('callTo', '');
+            $accountOverCosts = [];
+            $message = 'Don\'t have any campaigns reach limit';
+            foreach ($accounts as $account) {
+                $key = 'adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $cacheAccount= Cache::get($key, null);
+                $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                if (!empty($cacheAccount) && is_object($cacheAccount)) {
+                    $logMessage .= ", Last Cost: " . $cacheAccount->cost;
+                    if ($cacheAccount->cost < config('campaign.limitCostUsd') && $account->cost >= config('campaign.limitCostUsd')) {
+                        $accountOverCosts[] = $account;
+                    }
+                } elseif ($account->cost >= config('campaign.limitCostUsd')) {
+                    $accountOverCosts[] = $account;
+                }
+                \Log::info($logMessage);
+                Cache::forever($key, $account);
+            }
+    
+            if (count($accountOverCosts) > 0) {
+                $message = $this->getDisplayCostMessage($accountOverCosts, true);
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD');
+                if ($mailTo != '') {
+                    $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', $message);
+                }
+                if ($callTo != '' && (date('H') >= 23 || date('H') <= 6)) {
+                    $this->callPhone($callTo);
+                }
+                $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', $message);
             }
             return $message;
         } catch (\Exception $ex) {
