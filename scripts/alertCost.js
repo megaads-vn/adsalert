@@ -31,25 +31,24 @@ function run() {
     var myRegex = /(active)\s([0-9]{2}.[0-9]{2}.[0-9]{4})/gm;
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var date = new Date();
-        date.setDate(date.getDate() + 1);
-        var toDate = getDate(date);
-        date.setDate(date.getDate() - 1);
-        date.setDate(date.getDate() - 30);
-        var fromDate = getDate(date);
+        var toDate = '';
+        var fromDate = '';
 
         var matches = myRegex.exec(camp.getName());
         if (matches && matches.length > 2) {
             var dateStr = matches[2];
             var dateArr = dateStr.split('.');
             if (dateArr.length == 3) {
-                var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-                fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
-                fromDateObj.setDate(fromDateObj.getDate() + 31);
-                toDate = getDate(fromDateObj);
+                if (dateArr[2].length == 2) {
+                  dateArr[2] = '20' + dateArr[2];
+              }
+              var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+              fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
+              fromDateObj.setDate(fromDateObj.getDate() + 31);
+              toDate = getDate(fromDateObj);
             }
-        }
-        if (fromDate) {
+          }
+        if (fromDate && toDate) {
             var cost = camp.getStatsFor(fromDate, toDate).getCost();
             var item = {
                 "accountName": accountName,
@@ -63,7 +62,7 @@ function run() {
             var oldCampName = campName;
             var regex = /\[([^\[\]]*)(ok|OK|Ok|oK)([^\[\]]*)\]/gm;
             campName = campName.replace(regex, '');
-            if (cost >= 220000 && campName.toLowerCase().indexOf('ok') < 0) {
+            if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
                 Logger.log("Camp paused: " + oldCampName);
                 pausedCamp.push(item);
                 camp.pause();

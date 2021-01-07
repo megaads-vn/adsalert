@@ -38,7 +38,32 @@ function run() {
             "cost": cost
         };
         retval.push(item);
+
+        var campName = camp.getName();
+        var oldCampName = campName;
+        var regex = /\[([^\[\]]*)(ok|OK|Ok|oK)([^\[\]]*)\]/gm;
+        campName = campName.replace(regex, '');
+        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+            Logger.log("Camp paused: " + oldCampName);
+            pausedCamp.push(item);
+            camp.pause();
+        }
     }
+
+    if (pausedCamp.length > 0) {
+        var options = {
+            "method": "post",
+            "payload": {
+                'username': USERNAME,
+                "accounts": JSON.stringify(pausedCamp),
+                "mailTo": MAIL_TO,
+                "callTo": CALL_TO
+            }
+        };
+        var response = UrlFetchApp.fetch(SERVICE_PAUSE_URL, options);
+        Logger.log("UrlFetchApp response: " + response);
+    }
+
     return JSON.stringify(retval);
 }
 
