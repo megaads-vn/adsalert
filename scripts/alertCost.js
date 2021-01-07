@@ -42,20 +42,11 @@ function run() {
         if (matches && matches.length > 2) {
             var dateStr = matches[2];
             var dateArr = dateStr.split('.');
-            dateStr = '';
-            var toDateStr = '';
-            for (var i = dateArr.length - 1; i >= 0; i--) {
-                dateStr += addZero(dateArr[i]);
-                toDateStr += addZero(dateArr[i]);
-                if (i < dateArr.length - 1 && i > 0) {
-                    toDateStr += '-';
-                }
-            }
-            fromDate = dateStr;
-            if (toDateStr) {
-                toDate = Date.parse(toDateStr);
-                toDate.setDate(date.getDate() + 31);
-                toDate = getDate(toDate);
+            if (dateArr.length == 3) {
+                var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+                fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
+                fromDateObj.setDate(fromDateObj.getDate() + 31);
+                toDate = getDate(fromDateObj);
             }
         }
         if (fromDate) {
