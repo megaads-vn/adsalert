@@ -203,10 +203,10 @@ class AdsController extends BaseController
                 $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
-                    if ($cacheAccount->cost < config('campaign.limitCostUsd') && $account->cost >= config('campaign.limitCostUsd')) {
+                    if ($cacheAccount->cost < config('campaign.limitCostUsd') && $account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campgaign.upperLimitCostUsd')) {
                         $accountOverCosts[] = $account;
                     }
-                } elseif ($account->cost >= config('campaign.limitCostUsd')) {
+                } elseif ($account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campgaign.upperLimitCostUsd')) {
                     $accountOverCosts[] = $account;
                 }
                 \Log::info($logMessage);
