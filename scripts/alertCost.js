@@ -39,33 +39,38 @@ function run() {
             var dateStr = matches[2];
             var dateArr = dateStr.split('.');
             if (dateArr.length == 3) {
-                if (dateArr[2].length == 2) {
-                  dateArr[2] = '20' + dateArr[2];
-              }
-              var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-              fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
-              fromDateObj.setDate(fromDateObj.getDate() + 31);
-              toDate = getDate(fromDateObj);
+                    if (dateArr[2].length == 2) {
+                    dateArr[2] = '20' + dateArr[2];
+                }
+                var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+                fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
+                fromDateObj.setDate(fromDateObj.getDate() + 31);
+                toDate = getDate(fromDateObj);
             }
-          }
+        }
         if (fromDate && toDate) {
             var cost = camp.getStatsFor(fromDate, toDate).getCost();
-            var item = {
-                "accountName": accountName,
-                "campaignName": camp.getName(),
-                "campaignId": camp.getId(),
-                "cost": cost
-            };
-            retval.push(item);
-    
             var campName = camp.getName();
             var oldCampName = campName;
-            var regex = /\[([^\[\]]*)(ok|OK|Ok|oK)([^\[\]]*)\]/gm;
+            campName = campName.toLowerCase();
+            var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
             campName = campName.replace(regex, '');
             if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
                 Logger.log("Camp paused: " + oldCampName);
                 pausedCamp.push(item);
                 camp.pause();
+            }
+            if (
+                campName.indexOf('chua ok') >= 0 ||
+                campName.indexOf('ok') < 0
+            ) {
+                var item = {
+                    "accountName": accountName,
+                    "campaignName": camp.getName(),
+                    "campaignId": camp.getId(),
+                    "cost": cost
+                };
+                retval.push(item);
             }
         }
     }

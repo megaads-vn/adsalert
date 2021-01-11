@@ -33,22 +33,28 @@ function run() {
         date.setDate(date.getDate() - 30);
         var lastMonth = getDate(date);
         var cost = camp.getStatsFor(lastMonth, today).getCost();
-        var item = {
-            "accountName": accountName,
-            "campaignName": camp.getName(),
-            "campaignId": camp.getId(),
-            "cost": cost
-        };
-        retval.push(item);
 
         var campName = camp.getName();
         var oldCampName = campName;
-        var regex = /\[([^\[\]]*)(ok|OK|Ok|oK)([^\[\]]*)\]/gm;
+        campName = campName.toLowerCase();
+        var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
         campName = campName.replace(regex, '');
         if (cost >= 9 && cost <= 50 && campName.toLowerCase().indexOf('ok') < 0) {
             Logger.log("Camp paused: " + oldCampName);
             pausedCamp.push(item);
             camp.pause();
+        }
+        if (
+            campName.indexOf('chua ok') >= 0 ||
+            campName.indexOf('ok') < 0
+        ) {
+            var item = {
+                "accountName": accountName,
+                "campaignName": camp.getName(),
+                "campaignId": camp.getId(),
+                "cost": cost
+            };
+            retval.push(item);
         }
     }
 
