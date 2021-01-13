@@ -1,7 +1,7 @@
 var USERNAME = 'Megaads MCC - Khoan';
 var SERVICE_URL = "http://adsalert.agoz.me/ads/cost-usd";
 var SERVICE_PAUSE_URL = "http://adsalert.agoz.me/ads/paused";
-var MAIL_TO = "phult.contact@gmail.com,khoan.mega";
+var MAIL_TO = "phult.contact@gmail.com,khoan.mega@gmail.com";
 var CALL_TO = "";
 
 function main() {
@@ -39,6 +39,12 @@ function run() {
         campName = campName.toLowerCase();
         var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
         campName = campName.replace(regex, '');
+        var item = {
+            "accountName": accountName,
+            "campaignName": camp.getName(),
+            "campaignId": camp.getId(),
+            "cost": cost
+        };
         if (cost >= 9 && cost <= 50 && campName.toLowerCase().indexOf('ok') < 0) {
             Logger.log("Camp paused: " + oldCampName);
             pausedCamp.push(item);
@@ -48,12 +54,6 @@ function run() {
             campName.indexOf('chua ok') >= 0 ||
             campName.indexOf('ok') < 0
         ) {
-            var item = {
-                "accountName": accountName,
-                "campaignName": camp.getName(),
-                "campaignId": camp.getId(),
-                "cost": cost
-            };
             retval.push(item);
         }
     }
