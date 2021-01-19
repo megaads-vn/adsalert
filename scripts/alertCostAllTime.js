@@ -24,18 +24,39 @@ function run() {
         .withCondition('Status = ENABLED')
         .get();
     var pausedCamp = [];
+    var myRegex = /(active)\s([0-9]{2}.[0-9]{2}.[0-9]{4})/gm;
     while (campIter.hasNext()) {
         var camp = campIter.next();
-        var date = new Date();
-        date.setDate(date.getDate() + 1);
-        var today = getDate(date);
-
-        var cost = camp.getStatsFor('20201001', today).getCost();
         var campName = camp.getName();
         var oldCampName = campName;
+        var cost = 0;
         campName = campName.toLowerCase();
         var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
         campName = campName.replace(regex, '');
+        if (campName.indexOf('active') >= 0) {
+            var toDate = '';
+            var fromDate = '';
+    
+            var matches = myRegex.exec(camp.getName());
+            if (matches && matches.length > 2) {
+                var dateStr = matches[2];
+                var dateArr = dateStr.split('.');
+                if (dateArr.length == 3) {
+                        if (dateArr[2].length == 2) {
+                        dateArr[2] = '20' + dateArr[2];
+                    }
+                    var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+                    fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
+                    fromDateObj.setDate(fromDateObj.getDate() + 31);
+                    toDate = getDate(fromDateObj);
+                }
+            }
+            if (fromDate && toDate) {
+                cost = camp.getStatsFor(fromDate, toDate).getCost();
+            }
+        } else {
+            cost = camp.getStatsFor('ALL_TIME').getCost();
+        }
         var item = {
             "accountName": accountName,
             "campaignName": camp.getName(),
@@ -62,7 +83,8 @@ function run() {
                 'username': USERNAME,
                 "accounts": JSON.stringify(pausedCamp),
                 "mailTo": MAIL_TO,
-                "callTo": CALL_TO
+                "callTo": CALL_TO,
+                "file": "alertCostAllTime"
             }
         };
         var response = UrlFetchApp.fetch(SERVICE_PAUSE_URL, options);

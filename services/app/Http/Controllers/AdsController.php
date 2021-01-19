@@ -392,10 +392,11 @@ class AdsController extends BaseController
         $username = $request->input('username', '');
         $mailTo = $request->input('mailTo', '');
         $callTo = $request->input('callTo', '');
+        $file = $request->get('file');
 
         $message = $this->getAlertPausedCampaginMessage($accounts, true);
         \Log::info($username . ' has Paused Campaign');
-        \Log::info('PAUSED CAMPAIGN', [$accounts]);
+        \Log::info('PAUSED CAMPAIGN' . ($file ? (' ' . $file) : ''), [$accounts]);
         if ($mailTo != '') {
             $this->sendEmail($mailTo, $username . ' has PAUSED CAMPAIGN', $message);
         }
