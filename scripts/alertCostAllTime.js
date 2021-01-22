@@ -63,10 +63,15 @@ function run() {
             "campaignId": camp.getId(),
             "cost": cost
         };
-        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
-            Logger.log("Camp paused: " + oldCampName);
-            pausedCamp.push(item);
-            camp.pause();
+        if (cost >= 200000) {
+            if (campName.toLowerCase().indexOf('ok') < 0) {
+                Logger.log("Camp paused: " + oldCampName);
+                pausedCamp.push(item);
+                camp.pause();
+            } else {
+                Logger.log("Camp paused OK: " + oldCampName);
+                camp.pause();
+            }
         }
         if (
             campName.indexOf('chua ok') >= 0 ||
