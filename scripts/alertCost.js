@@ -21,6 +21,18 @@ function addZero(num) {
     return num > 9 ? num : '0' + num;
 }
 
+function campNameToDate(campName) {
+    var retval = [];
+    if (campName.indexOf('active') >= 0) {
+        var str = campName.substr(campName.indexOf('active') + 7, 10);
+        if (str.length = 10) {
+            retval = str.split('.');
+        }
+    }
+
+    return retval;
+}
+
 function run() {
     var retval = [];
     var accountName = AdWordsApp.currentAccount().getName();
@@ -34,15 +46,13 @@ function run() {
         var campName = camp.getName();
         var oldCampName = campName;
         campName = campName.toLowerCase();
-        var toDate = '';
-        var fromDate = '';
-
-        var matches = myRegex.exec(campName);
-        if (matches && matches.length > 2) {
-            var dateStr = matches[2];
-            var dateArr = dateStr.split('.');
-            if (dateArr.length == 3) {
-                    if (dateArr[2].length == 2) {
+        if (campName.indexOf('active') >= 0) {
+            var toDate = '';
+            var fromDate = '';
+            
+            var dateArr = campNameToDate(campName);
+            if (dateArr.length > 2) {
+                if (dateArr[2].length == 2) {
                     dateArr[2] = '20' + dateArr[2];
                 }
                 var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -50,30 +60,30 @@ function run() {
                 fromDateObj.setDate(fromDateObj.getDate() + 31);
                 toDate = getDate(fromDateObj);
             }
-        }
-        if (fromDate && toDate) {
-            var cost = camp.getStatsFor(fromDate, toDate).getCost();
-            var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
-            campName = campName.replace(regex, '');
-            var item = {
-                "accountName": accountName,
-                "campaignName": camp.getName(),
-                "campaignId": camp.getId(),
-                "cost": cost
-            };
-            if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
-                Logger.log("Camp paused: " + oldCampName);
-                pausedCamp.push(item);
-                camp.pause();
+            if (fromDate && toDate) {
+                var cost = camp.getStatsFor(fromDate, toDate).getCost();
+                var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
+                campName = campName.replace(regex, '');
+                var item = {
+                    "accountName": accountName,
+                    "campaignName": camp.getName(),
+                    "campaignId": camp.getId(),
+                    "cost": cost
+                };
+                if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+                    Logger.log("Camp paused: " + oldCampName);
+                    pausedCamp.push(item);
+                    camp.pause();
+                }
+                if (
+                    campName.indexOf('chua ok') >= 0 ||
+                    campName.indexOf('ok') < 0
+                ) {
+                    retval.push(item);
+                }
+            } else {
+                Logger.log('Error active: ' + campName);
             }
-            if (
-                campName.indexOf('chua ok') >= 0 ||
-                campName.indexOf('ok') < 0
-            ) {
-                retval.push(item);
-            }
-        } else {
-            Logger.log('Error active: ' + campName);
         }
     }
 

@@ -17,6 +17,18 @@ function getDate(date) {
     return year + '' + month + '' + day;
 }
 
+function campNameToDate(campName) {
+    var retval = [];
+    if (campName.indexOf('active') >= 0) {
+        var str = campName.substr(campName.indexOf('active') + 7, 10);
+        if (str.length = 10) {
+            retval = str.split('.');
+        }
+    }
+
+    return retval;
+}
+
 function run() {
     var retval = [];
     var accountName = AdWordsApp.currentAccount().getName();
@@ -24,7 +36,6 @@ function run() {
         .withCondition('Status = ENABLED')
         .get();
     var pausedCamp = [];
-    var myRegex = /(active)\s([0-9]{2}.[0-9]{2}.[0-9]{4})/gm;
     while (campIter.hasNext()) {
         var camp = campIter.next();
         var campName = camp.getName();
@@ -36,20 +47,15 @@ function run() {
         if (campName.indexOf('active') >= 0) {
             var toDate = '';
             var fromDate = '';
-    
-            var matches = myRegex.exec(campName);
-            if (matches && matches.length > 2) {
-                var dateStr = matches[2];
-                var dateArr = dateStr.split('.');
-                if (dateArr.length == 3) {
-                    if (dateArr[2].length == 2) {
-                        dateArr[2] = '20' + dateArr[2];
-                    }
-                    var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-                    fromDate = dateArr[2] + dateArr[1] + dateArr[0];
-                    fromDateObj.setDate(fromDateObj.getDate() + 31);
-                    toDate = getDate(fromDateObj);
+            var dateArr = campNameToDate(campName);
+            if (dateArr.length > 2) {
+                if (dateArr[2].length == 2) {
+                    dateArr[2] = '20' + dateArr[2];
                 }
+                var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+                fromDate = dateArr[2] + dateArr[1] + dateArr[0];
+                fromDateObj.setDate(fromDateObj.getDate() + 31);
+                toDate = getDate(fromDateObj);
             }
             if (fromDate && toDate) {
                 cost = camp.getStatsFor(fromDate, toDate).getCost();
