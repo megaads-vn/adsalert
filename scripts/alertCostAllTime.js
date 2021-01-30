@@ -37,22 +37,24 @@ function run() {
             var toDate = '';
             var fromDate = '';
     
-            var matches = myRegex.exec(camp.getName());
+            var matches = myRegex.exec(campName);
             if (matches && matches.length > 2) {
                 var dateStr = matches[2];
                 var dateArr = dateStr.split('.');
                 if (dateArr.length == 3) {
-                        if (dateArr[2].length == 2) {
+                    if (dateArr[2].length == 2) {
                         dateArr[2] = '20' + dateArr[2];
                     }
                     var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-                    fromDate = dateArr[2] + addZero(dateArr[1]) + addZero(dateArr[0]);
+                    fromDate = dateArr[2] + dateArr[1] + dateArr[0];
                     fromDateObj.setDate(fromDateObj.getDate() + 31);
                     toDate = getDate(fromDateObj);
                 }
             }
             if (fromDate && toDate) {
                 cost = camp.getStatsFor(fromDate, toDate).getCost();
+            } else {
+                Logger.log('Error active: ' + campName);
             }
         } else {
             cost = camp.getStatsFor('ALL_TIME').getCost();
@@ -63,15 +65,10 @@ function run() {
             "campaignId": camp.getId(),
             "cost": cost
         };
-        if (cost >= 200000) {
-            if (campName.toLowerCase().indexOf('ok') < 0) {
-                Logger.log("Camp paused: " + oldCampName);
-                pausedCamp.push(item);
-                camp.pause();
-            } else {
-                Logger.log("Camp paused OK: " + oldCampName);
-                camp.pause();
-            }
+        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+            Logger.log("Camp paused: " + oldCampName);
+            pausedCamp.push(item);
+            camp.pause();
         }
         if (
             campName.indexOf('chua ok') >= 0 ||
