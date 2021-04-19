@@ -200,6 +200,8 @@ class AdsController extends BaseController
             foreach ($accounts as $account) {
                 $key = 'adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
+                $cacheAccount->cost = floatval($cacheAccount->cost);
+                $account->cost = floatval($account->cost);
                 $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
