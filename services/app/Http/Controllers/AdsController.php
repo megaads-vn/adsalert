@@ -110,10 +110,18 @@ class AdsController extends BaseController
                 $logMessage = "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
+                    $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
+                    if (!isset($cacheAccount->is_send)) {
+                        $cacheAccount->is_send = 1;
+                    }
                     if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {
+                        $account->is_send = 1;
+                        $accountOverCosts[] = $account;
+                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCost')) {
                         $accountOverCosts[] = $account;
                     }
                 } elseif ($account->cost >= config('campaign.limitCost')) {
+                    $account->is_send = 1;
                     $accountOverCosts[] = $account;
                 }
                 \Log::info($logMessage);
@@ -155,11 +163,19 @@ class AdsController extends BaseController
                 $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount) && !empty($cacheAccountAllTime) && is_object($cacheAccountAllTime)) {
                     $logMessage .= ", Last Cost: " . $cacheAccountAllTime->cost;
+                    $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
+                    if (!isset($cacheAccount->is_send)) {
+                        $cacheAccount->is_send = 1;
+                    }
                     if (
                         $cacheAccountAllTime->cost < config('campaign.limitCost') && 
                         $account->cost >= config('campaign.limitCost') &&
                         $cacheAccount->cost < config('campaign.limitCost')
                     ) {
+                        $account->is_send = 1;
+                        $accountOverCosts[] = $account;
+                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCost')) {
+                        $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
                 }
@@ -203,12 +219,21 @@ class AdsController extends BaseController
                 $account->cost = floatval($account->cost);
                 $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
+                    $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
+                    if (!isset($cacheAccount->is_send)) {
+                        $cacheAccount->is_send = 1;
+                    }
                     $cacheAccount->cost = floatval($cacheAccount->cost);
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
                     if ($cacheAccount->cost < config('campaign.limitCostUsd') && $account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campaign.upperLimitCostUsd')) {
+                        $account->is_send = 1;
+                        $accountOverCosts[] = $account;
+                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCostUsd')) {
+                        $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
                 } elseif ($account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campaign.upperLimitCostUsd')) {
+                    $account->is_send = 1;
                     $accountOverCosts[] = $account;
                 }
                 \Log::info($logMessage);
