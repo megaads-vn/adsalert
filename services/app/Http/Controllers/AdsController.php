@@ -118,6 +118,7 @@ class AdsController extends BaseController
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCost')) {
+                        $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
                 } elseif ($account->cost >= config('campaign.limitCost')) {
