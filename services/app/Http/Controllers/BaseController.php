@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Response;
 
 class BaseController extends \Laravel\Lumen\Routing\Controller
@@ -45,8 +45,27 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         $response = curl_exec($channel);
         curl_close($channel);
         $responseInJson = json_decode($response);
-        \Log::info('responseInJson', [$responseInJson]);
         return isset($responseInJson->result) ? $responseInJson->result : $responseInJson;
+    }
+
+    protected function sendEmailRequest($url, $method = "GET", $data = [], $async = false)
+    {
+        $channel = curl_init();
+        curl_setopt($channel, CURLOPT_URL, $url);
+        curl_setopt($channel, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($channel, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($channel, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        if ($async) {
+            curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
+        }
+        $response = curl_exec($channel);
+        curl_close($channel);
+        $responseInJson = json_decode($response);
+        \Log::info('responseInJson', [$responseInJson]);
+        return isset($responseInJson->result) ? $responseInJson->result : '';
     }
     public function sendEmail($to, $subject, $content)
     {
@@ -60,8 +79,19 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
             $emailData['name'] = 'Megaads AdsAlert';
             $emailData['content'] = $content;
             $emailData['token'] = $token;
-            $this->sendRequest($emailService . '/api/send-mail', "POST", $emailData, true);
-            $retval = true;
+            $result = $this->sendEmailRequest($emailService . '/api/send-mail', "POST", $emailData, true);
+            if ($result) {
+                $retval = true;
+            } else {
+                $failEmailMessages = Cache::get('adwords::fail-email-messages', []);
+                $failEmailMessages[] = [
+                    'to' => $to,
+                    'subject' => $subject,
+                    'content' => $content,
+                ];
+                Cache::forever('adwords::fail-email-messages', $failEmailMessages);
+                $retval = false;
+            }
         }
         return $retval;
     }

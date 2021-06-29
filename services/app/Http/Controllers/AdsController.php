@@ -435,4 +435,44 @@ class AdsController extends BaseController
 
         return $message;
     }
+
+    public function sendFailEmail(Request $request) {
+        set_time_limit(5 * 3600);
+        $failEmailMessages = Cache::get('adwords::fail-email-messages', []);
+        Cache::forever('adwords::fail-email-messages', []);
+        $count = 0;
+        foreach ($failEmailMessages as $message) {
+            if (isset($message['to']) && isset($message['subject']) && isset($message['content'])) {
+                $this->sendEmail($message['to'], $message['subject'], $message['content']);
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    public function parseLog() {
+        $logFile = file(storage_path().'/logs/lumen2.log');
+        $logCollection = [];
+        // Loop through an array, show HTML source as HTML source; and line numbers too.
+        foreach ($logFile as $line_num => $line) {
+            //$logCollection[] = array('line'=> $line_num, 'content'=> htmlspecialchars($line));
+            $content = $line;
+            preg_match_all("/\,\sCost\:\s(\\d+)/m", $content, $cost, 1);
+            preg_match_all("/\,\sLast\sCost\:\s(\\d+)/m", $content, $lastCost, 1);
+            if ($cost && count($cost) > 1 && count($cost[1]) && $lastCost && count($lastCost) > 1 && count($lastCost[1])) {
+                $cost = $cost[1][0];
+                $lastCost = $lastCost[1][0];
+                if ($cost > $lastCost) {
+                    if (strpos($content, 'USD') !== false && $cost >= 9 && $lastCost < 9 && $cost < 50) {
+                        $logCollection[] = $content;
+                    } else if ($cost >= 200000 && $lastCost < 200000) {
+                        $logCollection[] = $content;
+                    }
+                }
+            }
+            
+        }
+        return $logCollection;
+    }
 }
