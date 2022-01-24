@@ -39,7 +39,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
         if ($async) {
             curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
-            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_TIMEOUT, 10);
             curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
         }
         $response = curl_exec($channel);
@@ -58,7 +58,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         curl_setopt($channel, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
         if ($async) {
             curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
-            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_TIMEOUT, 10);
             curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
         }
         $response = curl_exec($channel);
@@ -79,7 +79,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
             $emailData['name'] = 'Megaads AdsAlert';
             $emailData['content'] = $content;
             $emailData['token'] = $token;
-            $result = $this->sendEmailRequest($emailService . '/api/send-mail', "POST", $emailData, true);
+            $result = $this->sendEmailRequest($emailService . '/api/send-mail', "POST", $emailData);
             if ($result) {
                 $retval = true;
             } else {
@@ -138,7 +138,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         curl_setopt($channel, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded"));
         if ($async) {
             curl_setopt($channel, CURLOPT_NOSIGNAL, 1);
-            curl_setopt($channel, CURLOPT_TIMEOUT_MS, 200);
+            curl_setopt($channel, CURLOPT_TIMEOUT, 10);
             curl_setopt($channel, CURLOPT_RETURNTRANSFER, 0);
         }
         $response = curl_exec($channel);
