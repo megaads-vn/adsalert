@@ -5,7 +5,7 @@ var MAIL_TO = "phult.contact@gmail.com,khoan.mega@gmail.com";
 var CALL_TO = "";
 
 function main() {
-    var accountSelector = MccApp.accounts(); //.withIds(["744-728-6416"]);
+    var accountSelector = MccApp.accounts().withIds(["495-513-6985","447-986-8039","788-720-8852","326-362-2447","566-750-8895","406-953-6438"]);
     accountSelector.executeInParallel("run", "finish");
 }
 
@@ -37,50 +37,54 @@ function run() {
         .get();
     var pausedCamp = [];
     while (campIter.hasNext()) {
-        var camp = campIter.next();
-        var campName = camp.getName();
-        var oldCampName = campName;
-        var cost = 0;
-        campName = campName.toLowerCase();
-        var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
-        campName = campName.replace(regex, '');
-        if (campName.indexOf('active') >= 0) {
-            var toDate = '';
-            var fromDate = '';
-            var dateArr = campNameToDate(campName);
-            if (dateArr.length > 2) {
-                if (dateArr[2].length == 2) {
-                    dateArr[2] = '20' + dateArr[2];
+        try {
+            var camp = campIter.next();
+            var campName = camp.getName();
+            var oldCampName = campName;
+            var cost = 0;
+            campName = campName.toLowerCase();
+            var regex = /\[([^\[\]]*)(ok)([^\[\]]*)\]/gm;
+            campName = campName.replace(regex, '');
+            if (campName.indexOf('active') >= 0) {
+                var toDate = '';
+                var fromDate = '';
+                var dateArr = campNameToDate(campName);
+                if (dateArr.length > 2) {
+                    if (dateArr[2].length == 2) {
+                        dateArr[2] = '20' + dateArr[2];
+                    }
+                    var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
+                    fromDate = dateArr[2] + dateArr[1] + dateArr[0];
+                    fromDateObj.setDate(fromDateObj.getDate() + 31);
+                    toDate = getDate(fromDateObj);
                 }
-                var fromDateObj = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
-                fromDate = dateArr[2] + dateArr[1] + dateArr[0];
-                fromDateObj.setDate(fromDateObj.getDate() + 31);
-                toDate = getDate(fromDateObj);
-            }
-            if (fromDate && toDate) {
-                cost = camp.getStatsFor(fromDate, toDate).getCost();
+                if (fromDate && toDate) {
+                    cost = camp.getStatsFor(fromDate, toDate).getCost();
+                } else {
+                    Logger.log('Error active: ' + campName);
+                }
             } else {
-                Logger.log('Error active: ' + campName);
+                cost = camp.getStatsFor('ALL_TIME').getCost();
             }
-        } else {
-            cost = camp.getStatsFor('ALL_TIME').getCost();
-        }
-        var item = {
-            "accountName": accountName,
-            "campaignName": camp.getName(),
-            "campaignId": camp.getId(),
-            "cost": cost
-        };
-        if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
-            Logger.log("Camp paused: " + oldCampName);
-            pausedCamp.push(item);
-            camp.pause();
-        }
-        if (
-            campName.indexOf('chua ok') >= 0 ||
-            campName.indexOf('ok') < 0
-        ) {
-            retval.push(item);
+            var item = {
+                "accountName": accountName,
+                "campaignName": camp.getName(),
+                "campaignId": camp.getId(),
+                "cost": cost
+            };
+            if (cost >= 200000 && campName.toLowerCase().indexOf('ok') < 0) {
+                Logger.log("Camp paused: " + oldCampName);
+                pausedCamp.push(item);
+                camp.pause();
+            }
+            if (
+                campName.indexOf('chua ok') >= 0 ||
+                campName.indexOf('ok') < 0
+            ) {
+                retval.push(item);
+            }
+        } catch (error) {
+            Logger.log('error: ' + error);
         }
     }
 

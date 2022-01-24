@@ -5,7 +5,7 @@ var MAIL_TO = "phult.contact@gmail.com,khoan.mega@gmail.com";
 var CALL_TO = "";
 
 function main() {
-    var accountSelector = MccApp.accounts(); //.withIds(["744-728-6416"]);
+    var accountSelector = MccApp.accounts().withIds(["495-513-6985","447-986-8039","788-720-8852","326-362-2447","566-750-8895","406-953-6438"]);
     accountSelector.executeInParallel("run", "finish");
 }
 

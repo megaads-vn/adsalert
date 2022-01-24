@@ -63,8 +63,8 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
         }
         $response = curl_exec($channel);
         curl_close($channel);
+        \Log::info('sendEmailRequest', [$response]);
         $responseInJson = json_decode($response);
-        \Log::info('responseInJson', [$responseInJson]);
         return isset($responseInJson->result) ? $responseInJson->result : '';
     }
     public function sendEmail($to, $subject, $content)
