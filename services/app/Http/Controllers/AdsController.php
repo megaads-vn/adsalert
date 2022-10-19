@@ -76,7 +76,7 @@ class AdsController extends BaseController
     
             if (count($accountsNotIncreaseImpressions) > 0) {
                 $message = $this->getDisplayMessage($accountsNotIncreaseImpressions);
-                \Log::info($username . ' has BLOCKED ACCOUNTS');
+                \Log::info($username . ' has BLOCKED ACCOUNTS', [$accountsNotIncreaseImpressions]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has BLOCKED ACCOUNTS', $message);
                 }
@@ -125,13 +125,16 @@ class AdsController extends BaseController
                     $account->is_send = 1;
                     $accountOverCosts[] = $account;
                 }
+                if (!empty($account->is_send)) {
+                    $logMessage .= ' Is Send';
+                }
                 \Log::info($logMessage);
                 Cache::forever($key, $account);
             }
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS');
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accountOverCosts]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $message);
                 }
@@ -179,6 +182,28 @@ class AdsController extends BaseController
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
+                } elseif (
+                    !empty($cacheAccount) 
+                    && is_object($cacheAccount) 
+                    && $cacheAccount->cost < config('campaign.limitCost') 
+                    && $account->cost >= config('campaign.limitCost')
+                ) {
+                    $account->is_send = 1;
+                    $accountOverCosts[] = $account;
+                } elseif (
+                    !empty($cacheAccountAllTime) 
+                    && is_object($cacheAccountAllTime) 
+                    && $cacheAccountAllTime->cost < config('campaign.limitCost') 
+                    && $account->cost >= config('campaign.limitCost')
+                ) {
+                    $account->is_send = 1;
+                    $accountOverCosts[] = $account;
+                } else if ($account->cost >= config('campaign.limitCost')) {
+                    $account->is_send = 1;
+                    $accountOverCosts[] = $account;
+                }
+                if (!empty($account->is_send)) {
+                    $logMessage .= ' Is Send';
                 }
                 \Log::info($logMessage);
                 Cache::forever($keyAllTime, $account);
@@ -186,7 +211,7 @@ class AdsController extends BaseController
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME');
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', [$accountOverCosts]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $message);
                 }
@@ -237,13 +262,16 @@ class AdsController extends BaseController
                     $account->is_send = 1;
                     $accountOverCosts[] = $account;
                 }
+                if (!empty($account->is_send)) {
+                    $logMessage .= ' Is Send';
+                }
                 \Log::info($logMessage);
                 Cache::forever($key, $account);
             }
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD');
+                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', [$accountOverCosts]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', $message);
                 }
@@ -300,7 +328,7 @@ class AdsController extends BaseController
     
             if (count($limitedBudgetCampaigns) > 0) {
                 $message = $this->getDisplayMessage($limitedBudgetCampaigns, true);
-                \Log::info($username . ' has LIMITED BUGDGET CAMPAIGN');
+                \Log::info($username . ' has LIMITED BUGDGET CAMPAIGN', [$limitedBudgetCampaigns]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has LIMITED BUGDGET CAMPAIGN', $message);
                 }
