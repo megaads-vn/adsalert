@@ -10,6 +10,16 @@ use App\Http\Controllers\BaseController;
 
 class AdsController extends BaseController
 {
+    const DEFAULT_MAIL_TO = "phult.contact@gmail.com,khoan.mega@gmail.com";
+
+    function getKey($key, $mailTo) {
+        if ($mailTo == self::DEFAULT_MAIL_TO) {
+            return $key;
+        }
+
+        return $mailTo . "::" . $key;
+    }
+
     public function unapprove(Request $request)
     {
         $unapproved = $request->input('count');
@@ -105,7 +115,7 @@ class AdsController extends BaseController
             $accountOverCosts = [];
             $message = 'Don\'t have any campaigns reach limit';
             foreach ($accounts as $account) {
-                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $key = $this->getKey('adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccount= Cache::get($key, null);
                 $logMessage = "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
@@ -126,7 +136,7 @@ class AdsController extends BaseController
                     $accountOverCosts[] = $account;
                 }
                 if (!empty($account->is_send)) {
-                    $logMessage .= ' Is Send';
+                    $logMessage .= ' Is Send To: ' . $mailTo;
                 }
                 \Log::info($logMessage);
                 Cache::forever($key, $account);
@@ -160,7 +170,7 @@ class AdsController extends BaseController
             $accountOverCosts = [];
             $message = 'Don\'t have any campaigns reach limit';
             foreach ($accounts as $account) {
-                $key = 'adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $key = $this->getKey('adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $keyAllTime = 'adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccountAllTime = Cache::get($keyAllTime, null);
                 $cacheAccount= Cache::get($key, null);
@@ -203,7 +213,7 @@ class AdsController extends BaseController
                     $accountOverCosts[] = $account;
                 }
                 if (!empty($account->is_send)) {
-                    $logMessage .= ' Is Send';
+                    $logMessage .= ' Is Send To: ' . $mailTo;
                 }
                 \Log::info($logMessage);
                 Cache::forever($keyAllTime, $account);
