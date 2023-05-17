@@ -171,7 +171,7 @@ class AdsController extends BaseController
             $message = 'Don\'t have any campaigns reach limit';
             foreach ($accounts as $account) {
                 $key = $this->getKey('adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
-                $keyAllTime = 'adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $keyAllTime = $this->getKey('adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccountAllTime = Cache::get($keyAllTime, null);
                 $cacheAccount= Cache::get($key, null);
                 $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
