@@ -117,7 +117,7 @@ class AdsController extends BaseController
             foreach ($accounts as $account) {
                 $key = $this->getKey('adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = $mailTo . ' | ' . "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
@@ -144,7 +144,7 @@ class AdsController extends BaseController
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accountOverCosts]);
+                \Log::info($mailTo . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accountOverCosts]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $message);
                 }
@@ -174,7 +174,7 @@ class AdsController extends BaseController
                 $keyAllTime = $this->getKey('adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccountAllTime = Cache::get($keyAllTime, null);
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = $mailTo . ' | ' . "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount) && !empty($cacheAccountAllTime) && is_object($cacheAccountAllTime)) {
                     $logMessage .= ", Last Cost: " . $cacheAccountAllTime->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
@@ -221,7 +221,7 @@ class AdsController extends BaseController
     
             if (count($accountOverCosts) > 0) {
                 $message = $this->getDisplayCostMessage($accountOverCosts, true);
-                \Log::info($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', [$accountOverCosts]);
+                \Log::info($mailTo . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', [$accountOverCosts]);
                 if ($mailTo != '') {
                     $this->sendEmail($mailTo, $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $message);
                 }
