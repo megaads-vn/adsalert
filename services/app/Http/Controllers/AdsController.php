@@ -101,6 +101,52 @@ class AdsController extends BaseController
         }
     }
 
+    public function getMailTo($campaignId) {
+        $config = [
+            'khanhlinhvi.mega@gmail.com' => [
+                '495-513-6985',
+                '406-953-6438',
+                '180-648-9991',
+                '447-986-8039'
+            ],
+            'hanhtran111196@gmail.com' => [
+                '447-986-8039'
+            ],
+            'phuonganhcouponde@gmail.com' => [
+                '461-761-6275'
+            ],
+            'maidawngmegaads@gmail.com:' => [
+                '553-267-3226'
+            ],
+            'thuongnt.coupon@gmail.com' => [
+                '326-362-2447'
+            ]
+        ];
+        $mails = [];
+        foreach ($config as $mail => $ids) {
+            if (in_array($campaignId, $ids)) {
+                $mails[] = $mail;
+            }
+        }
+
+        return implode(",", $mails);
+    }
+
+    public function getStaffAlerts($accounts) {
+        $retVal = [];
+        foreach ($accounts as $account) {
+            $mailTo = getMailTo($account->campaignId);
+            if ($mailTo) {
+                if (!isset($retVal[$mailTo])) {
+                    $retVal[$mailTo] = [];
+                }
+                $retVal[$mailTo][] = $account;
+            }
+        }
+
+        return $retVal;
+    }
+
     public function cost(Request $request)
     {
         if ($request->has('clearCache')) {
@@ -117,7 +163,7 @@ class AdsController extends BaseController
             foreach ($accounts as $account) {
                 $key = $this->getKey('adwords:campaign_cost:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = $mailTo . ' | ' . "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost 30 Days - Account: " . $account->accountName . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
@@ -152,6 +198,14 @@ class AdsController extends BaseController
                     $this->callPhone($callTo);
                 }
                 $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $message);
+                $staffs = $this->getStaffAlerts($accountOverCosts);
+                foreach ($staffs as $mail => $accounts) {
+                    $messageItem = $this->getDisplayCostMessage($accounts, true);
+                    \Log::info($mail . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accounts]);
+                    if ($mail != '') {
+                        $this->sendEmail($mail, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $messageItem);
+                    }
+                }
             }
             return $message;
         } catch (\Exception $ex) {
@@ -174,7 +228,7 @@ class AdsController extends BaseController
                 $keyAllTime = $this->getKey('adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccountAllTime = Cache::get($keyAllTime, null);
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = $mailTo . ' | ' . "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount) && !empty($cacheAccountAllTime) && is_object($cacheAccountAllTime)) {
                     $logMessage .= ", Last Cost: " . $cacheAccountAllTime->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
@@ -229,6 +283,15 @@ class AdsController extends BaseController
                     $this->callPhone($callTo);
                 }
                 $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $message);
+
+                $staffs = $this->getStaffAlerts($accountOverCosts);
+                foreach ($staffs as $mail => $accounts) {
+                    $messageItem = $this->getDisplayCostMessage($accounts, true);
+                    \Log::info($mail . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accounts]);
+                    if ($mail != '') {
+                        $this->sendEmail($mail, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $messageItem);
+                    }
+                }
             }
             return $message;
         } catch (\Exception $ex) {
@@ -253,7 +316,7 @@ class AdsController extends BaseController
                 $key = 'adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
                 $account->cost = floatval($account->cost);
-                $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName. ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
                     if (!isset($cacheAccount->is_send)) {
