@@ -101,31 +101,51 @@ class AdsController extends BaseController
         }
     }
 
-    public function getMailTo($campaignId) {
+    public function getMailTo($campName) {
+        $campName = strtoupper($campName);
+        $ignoreWhenUS = ['CA', 'AU', 'DE', 'ES', 'IT', 'JP', 'BR', 'PT', 'FR', 'UK', 'BE'];
         $config = [
+            'thaont.megaads@gmail.com' => [
+                'US',
+                'UK'
+            ],
             'khanhlinhvi.mega@gmail.com' => [
-                '495-513-6985',
-                '406-953-6438',
-                '180-648-9991',
-                '447-986-8039'
+                'UK',
             ],
             'hanhtran111196@gmail.com' => [
-                '447-986-8039'
+                'FR'
             ],
             'phuonganhcouponde@gmail.com' => [
-                '461-761-6275'
+                'DE'
             ],
             'maidawngmegaads@gmail.com:' => [
-                '553-267-3226'
+                'ES'
             ],
             'thuongnt.coupon@gmail.com' => [
-                '326-362-2447'
+                'JP'
             ]
         ];
         $mails = [];
-        foreach ($config as $mail => $ids) {
-            if (in_array($campaignId, $ids)) {
-                $mails[] = $mail;
+        foreach ($config as $mail => $locales) {
+            foreach ($locales as $locale) {
+                if ($locale == "US") {
+                    $check = false;
+                    foreach ($ignoreWhenUS as $lc) {
+                        preg_match("/\b$lc\b/", $campName, $matches);
+                        if ($matches && count($matches)) {
+                            $check = true;
+                            break;
+                        }
+                    }
+                    if (!$check) {
+                        $mails[] = $mail;
+                    }
+                } else {
+                    preg_match("/\b$locale\b/", $campName, $matches);
+                    if ($matches && count($matches)) {
+                        $mails[] = $mail;
+                    }
+                }
             }
         }
 
@@ -135,7 +155,7 @@ class AdsController extends BaseController
     public function getStaffAlerts($accounts) {
         $retVal = [];
         foreach ($accounts as $account) {
-            $mailTo = getMailTo($account->campaignId);
+            $mailTo = $this->getMailTo($account->campaignName);
             if ($mailTo) {
                 if (!isset($retVal[$mailTo])) {
                     $retVal[$mailTo] = [];
