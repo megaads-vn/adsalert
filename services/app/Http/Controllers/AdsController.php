@@ -554,6 +554,14 @@ class AdsController extends BaseController
         }
         $this->requestMonitor($username . ' has PAUSED CAMPAIGN', $message);
 
+        $staffs = $this->getStaffAlerts($accounts);
+        foreach ($staffs as $mail => $accs) {
+            $messageItem = $this->getAlertPausedCampaginMessage($accs, true);
+            if ($mail != '') {
+                $this->sendEmail($mail, $username . ' has PAUSED CAMPAIGN', $messageItem);
+            }
+        }
+
         return $message;
     }
 
