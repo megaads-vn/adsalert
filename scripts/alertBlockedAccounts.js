@@ -11,6 +11,7 @@ function main() {
 function run() {
     var retval = [];
     var accountName = AdWordsApp.currentAccount().getName();
+    var accountId = AdWordsApp.currentAccount().getCustomerId();
     var campIter = AdWordsApp.campaigns()
         .withCondition('Status = ENABLED')
         .get();
@@ -19,6 +20,7 @@ function run() {
         var impressions = camp.getStatsFor("TODAY").getImpressions();
         retval.push({
             "accountName": accountName,
+            "accountId": accountId,
             "campaignName": camp.getName(),
             "impressions": impressions
         });

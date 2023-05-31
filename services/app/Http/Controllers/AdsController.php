@@ -101,16 +101,57 @@ class AdsController extends BaseController
         }
     }
 
+    public function getMailToByAccountId($accountId) {
+        $mails = [];
+        $config = [
+            'thaont.megaads@gmail.com' => [
+                "495-513-6985",
+                "406-953-6438",
+                "180-648-9991"
+            ],
+            'khanhlinhvi.mega@gmail.com' => [
+                "495-513-6985",
+                "406-953-6438",
+                "180-648-9991"
+            ],
+            'hanhtran111196@gmail.com' => [
+                "447-986-8039"
+            ],
+            'phuonganhcouponde@gmail.com' => [
+                "461-761-6275"
+            ],
+            'maidawngmegaads@gmail.com:' => [
+                '553-267-3226'
+            ],
+            'thuongnt.coupon@gmail.com' => [
+                '326-362-2447'
+            ],
+            "thuylinh.megaads@gmail.com" => [
+                "351-292-464"
+            ]
+        ];
+        $mails = [];
+        foreach ($config as $mail => $accountIds) {
+            foreach ($accountIds as $id) {
+                if ($id == $accountId) {
+                    $mails[] = $mail;
+                }
+            }
+        }
+
+        return implode(",", $mails);
+    }
+
     public function getMailTo($campName) {
         $campName = strtoupper($campName);
-        $ignoreWhenUS = ['CA', 'AU', 'DE', 'ES', 'IT', 'JP', 'BR', 'PT', 'FR', 'UK', 'BE'];
+        $ignoreWhenUS = ['DE', 'ES', 'IT', 'JP', 'BR', 'PT', 'FR', 'UK', 'IR', 'BE'];
         $config = [
             'thaont.megaads@gmail.com' => [
                 'US',
                 'UK'
             ],
             'khanhlinhvi.mega@gmail.com' => [
-                'UK',
+                'UK', 'IR'
             ],
             'hanhtran111196@gmail.com' => [
                 'FR'
@@ -155,7 +196,11 @@ class AdsController extends BaseController
     public function getStaffAlerts($accounts) {
         $retVal = [];
         foreach ($accounts as $account) {
-            $mailTo = $this->getMailTo($account->campaignName);
+            if (isset($account->accountId)) {
+                $mailTo = $this->getMailToByAccountId($account->accountId);
+            } else {
+                $mailTo = $this->getMailTo($account->campaignName);
+            }
             if ($mailTo) {
                 if (!isset($retVal[$mailTo])) {
                     $retVal[$mailTo] = [];
