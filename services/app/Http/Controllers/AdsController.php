@@ -293,7 +293,7 @@ class AdsController extends BaseController
                 $keyAllTime = $this->getKey('adwords:campaign_cost_all_time:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccountAllTime = Cache::get($keyAllTime, null);
                 $cacheAccount= Cache::get($key, null);
-                $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . (isset($account->accountId) ? ", AccountId: " . $account->accountId : "") . (isset($account->accountId) ? "AccountId: " . $account->accountId : "") . " , Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost All Time - Account: " . $account->accountName . (isset($account->accountId) ? ", AccountId: " . $account->accountId : "") . " , Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount) && !empty($cacheAccountAllTime) && is_object($cacheAccountAllTime)) {
                     $logMessage .= ", Last Cost: " . $cacheAccountAllTime->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
@@ -352,9 +352,9 @@ class AdsController extends BaseController
                 $staffs = $this->getStaffAlerts($accountOverCosts);
                 foreach ($staffs as $mail => $accounts) {
                     $messageItem = $this->getDisplayCostMessage($accounts, true);
-                    \Log::info($mail . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', [$accounts]);
+                    \Log::info($mail . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', [$accounts]);
                     if ($mail != '') {
-                        $this->sendEmail($mail, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS', $messageItem);
+                        $this->sendEmail($mail, $username . ' has CAMPAIGNS REACH LIMIT COST ALL TIME', $messageItem);
                     }
                 }
             }
