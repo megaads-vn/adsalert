@@ -127,7 +127,7 @@ class AdsController extends BaseController
                 '326-362-2447'
             ],
             "thuylinh.megaads@gmail.com" => [
-                "351-292-464"
+                "351-292-4640"
             ]
         ];
         $mails = [];
