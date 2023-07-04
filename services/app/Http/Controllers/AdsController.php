@@ -425,6 +425,15 @@ class AdsController extends BaseController
                     $this->callPhone($callTo);
                 }
                 $this->requestMonitor($username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', $message);
+
+                $staffs = $this->getStaffAlerts($accountOverCosts);
+                foreach ($staffs as $mail => $accounts) {
+                    $messageItem = $this->getDisplayCostMessage($accounts, true);
+                    \Log::info($mail . ' | ' . $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', [$accounts]);
+                    if ($mail != '') {
+                        $this->sendEmail($mail, $username . ' has CAMPAIGNS REACH LIMIT COST IN 30 DAYS USD', $messageItem);
+                    }
+                }
             }
             return $message;
         } catch (\Exception $ex) {
