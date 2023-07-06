@@ -389,7 +389,7 @@ class AdsController extends BaseController
                 $key = 'adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
                 $cacheAccount= Cache::get($key, null);
                 $account->cost = floatval($account->cost);
-                $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
+                $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . (isset($account->accountId) ? ", AccountId: " . $account->accountId : "") . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
                     if (!isset($cacheAccount->is_send)) {
