@@ -123,20 +123,24 @@ class AdsController extends BaseController
             ],
             'phuonganhcouponde@gmail.com' => [
                 "461-761-6275",
-                "727-118-6921"
-            ],
-            'maidawngmegaads@gmail.com:' => [
+                "727-118-6921",
+                "351-292-4640",
+                "875-262-8652",
                 '553-267-3226',
                 '177-380-5303'
             ],
+            // 'maidawngmegaads@gmail.com' => [
+            //     '553-267-3226',
+            //     '177-380-5303'
+            // ],
             'thuongnt.coupon@gmail.com' => [
                 '326-362-2447',
                 "398-022-7660"
             ],
-            "thuylinh.megaads@gmail.com" => [
-                "351-292-4640",
-                "875-262-8652"
-            ]
+            // "thuylinh.megaads@gmail.com" => [
+            //     "351-292-4640",
+            //     "875-262-8652"
+            // ]
         ];
         $mails = [];
         foreach ($config as $mail => $accountIds) {
@@ -199,6 +203,20 @@ class AdsController extends BaseController
         }
 
         return implode(",", $mails);
+    }
+
+    public function testMailTo(Request $request) {
+        $accounts = $request->get('accounts');
+        $result = [];
+        foreach ($accounts as $account) {
+            $mailTo = $this->getMailTo($account['Campaign']);
+            if (!isset($result[$mailTo])) {
+                $result[$mailTo] = [];
+            }
+            $result[$mailTo][] = $account['Campaign'];
+        }
+
+        return $result;
     }
 
     public function getStaffAlerts($accounts) {
