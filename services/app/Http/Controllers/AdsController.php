@@ -404,7 +404,7 @@ class AdsController extends BaseController
             $accountOverCosts = [];
             $message = 'Don\'t have any campaigns reach limit';
             foreach ($accounts as $account) {
-                $key = 'adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId;
+                $key = $this->getKey('adwords:campaign_cost_usd:' . $account->accountName . ':' . $account->campaignName . ':' . $account->campaignId, $mailTo);
                 $cacheAccount= Cache::get($key, null);
                 $account->cost = floatval($account->cost);
                 $logMessage = "Checking Limit Cost 30 Days USD - Account: " . $account->accountName . (isset($account->accountId) ? ", AccountId: " . $account->accountId : "") . ", Campaign: " . $account->campaignName . " CampaignId: " . $account->campaignId . ", Cost: " . $account->cost;
@@ -427,7 +427,7 @@ class AdsController extends BaseController
                     $accountOverCosts[] = $account;
                 }
                 if (!empty($account->is_send)) {
-                    $logMessage .= ' Is Send';
+                    $logMessage .= ' Is Send To: ' . $mailTo;
                 }
                 \Log::info($logMessage);
                 Cache::forever($key, $account);
