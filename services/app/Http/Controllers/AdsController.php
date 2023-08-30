@@ -264,7 +264,7 @@ class AdsController extends BaseController
                     if ($cacheAccount->cost < config('campaign.limitCost') && $account->cost >= config('campaign.limitCost')) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
-                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCost')) {
+                    } else if ((!$cacheAccount->is_send || strpos(strtolower($account->campaignName), 'chua ok') !== false) && $account->cost >= config('campaign.limitCost')) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
@@ -333,7 +333,7 @@ class AdsController extends BaseController
                     ) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
-                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCost')) {
+                    } else if ((!$cacheAccount->is_send || strpos(strtolower($account->campaignName), 'chua ok') !== false) && $account->cost >= config('campaign.limitCost')) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
@@ -418,7 +418,7 @@ class AdsController extends BaseController
                     if ($cacheAccount->cost < config('campaign.limitCostUsd') && $account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campaign.upperLimitCostUsd')) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
-                    } else if (!$cacheAccount->is_send && $account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campaign.upperLimitCostUsd')) {
+                    } else if ((!$cacheAccount->is_send || strpos(strtolower($account->campaignName), 'chua ok') !== false) && $account->cost >= config('campaign.limitCostUsd') && $account->cost <= config('campaign.upperLimitCostUsd')) {
                         $account->is_send = 1;
                         $accountOverCosts[] = $account;
                     }
