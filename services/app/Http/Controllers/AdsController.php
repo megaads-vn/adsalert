@@ -258,6 +258,9 @@ class AdsController extends BaseController
                 if (!empty($cacheAccount) && is_object($cacheAccount)) {
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
+                    if ($account->cost < $cacheAccount->cost) {
+                        $account->is_send = 0;
+                    }
                     if (!isset($cacheAccount->is_send)) {
                         $cacheAccount->is_send = 1;
                     }
@@ -325,6 +328,9 @@ class AdsController extends BaseController
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
                     if (!isset($cacheAccount->is_send)) {
                         $cacheAccount->is_send = 1;
+                    }
+                    if ($account->cost < $cacheAccount->cost) {
+                        $account->is_send = 0;
                     }
                     if (
                         $cacheAccountAllTime->cost < config('campaign.limitCost') && 
@@ -412,6 +418,9 @@ class AdsController extends BaseController
                     $account->is_send = isset($cacheAccount->is_send) ? $cacheAccount->is_send : 0;
                     if (!isset($cacheAccount->is_send)) {
                         $cacheAccount->is_send = 1;
+                    }
+                    if ($account->cost < $cacheAccount->cost) {
+                        $account->is_send = 0;
                     }
                     $cacheAccount->cost = floatval($cacheAccount->cost);
                     $logMessage .= ", Last Cost: " . $cacheAccount->cost;
