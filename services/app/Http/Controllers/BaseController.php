@@ -79,6 +79,7 @@ class BaseController extends \Laravel\Lumen\Routing\Controller
             $emailData['name'] = 'Megaads AdsAlert';
             $emailData['content'] = $content;
             $emailData['token'] = $token;
+            \Log::info('sending email to', [$to]);
             $result = $this->sendEmailRequest($emailService . '/api/send-mail', "POST", $emailData);
             if ($result) {
                 $retval = true;
