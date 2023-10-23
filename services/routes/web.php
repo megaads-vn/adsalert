@@ -19,6 +19,7 @@ $app->post('/ads/blocked', 'AdsController@blocked');
 $app->post('/ads/cost', 'AdsController@cost');
 $app->post('/ads/cost-usd', 'AdsController@costUsd');
 $app->post('/ads/cost-all-time', 'AdsController@costAllTime');
+$app->post('/ads/cost-all-time-usd', 'AdsController@costAllTimeUSD');
 $app->post('/ads/paused', 'AdsController@alertPausedCampagin');
 $app->post('/ads/limited-budget', 'AdsController@limitedBudget');
 $app->get('/ads/fail-email', 'AdsController@sendFailEmail');
