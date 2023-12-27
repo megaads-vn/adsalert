@@ -35,6 +35,7 @@ function finish(results) {
         var returnValue = results[i];   
         accounts.push({
           accountName: returnValue.accountName,
+          accountId: returnValue.accountId,
           campaignName: returnValue.campaignName,
           campaignId: returnValue.campaignId,
           cost: returnValue.cost

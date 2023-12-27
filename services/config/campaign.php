@@ -2,6 +2,6 @@
 
 return [
     'limitCost' => 200000,
-    'limitCostUsd' => 9,
-    'upperLimitCostUsd' => 50
+    'limitCostUsd' => 8,
+    'upperLimitCostUsd' => 500
 ];

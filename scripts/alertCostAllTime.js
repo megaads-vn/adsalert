@@ -116,6 +116,7 @@ function finish(results) {
             for (var j = 0; j < returnValue.length; j++) {
                 accounts.push({
                     accountName: returnValue[j].accountName,
+                    accountId: returnValue[j].accountId,
                     campaignName: returnValue[j].campaignName,
                     campaignId: returnValue[j].campaignId,
                     cost: returnValue[j].cost

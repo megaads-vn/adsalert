@@ -24,3 +24,4 @@ $app->post('/ads/paused', 'AdsController@alertPausedCampagin');
 $app->post('/ads/limited-budget', 'AdsController@limitedBudget');
 $app->get('/ads/fail-email', 'AdsController@sendFailEmail');
 $app->get('/ads/parse-log', 'AdsController@parseLog');
+$app->post('/ads/test-mail', 'AdsController@testMailTo');

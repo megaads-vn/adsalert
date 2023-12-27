@@ -47,7 +47,7 @@ function run() {
             "campaignId": camp.getId(),
             "cost": cost
         };
-        if (cost >= 9 && cost <= 50 && campName.toLowerCase().indexOf('ok') < 0) {
+        if (cost >= 8 && cost <= 500 && campName.toLowerCase().indexOf('ok') < 0) {
             Logger.log("Camp paused: " + oldCampName);
             pausedCamp.push(item);
             camp.pause();
@@ -85,6 +85,7 @@ function finish(results) {
             for (var j = 0; j < returnValue.length; j++) {
                 accounts.push({
                     accountName: returnValue[j].accountName,
+                    accountId: returnValue[j].accountId,
                     campaignName: returnValue[j].campaignName,
                     campaignId: returnValue[j].campaignId,
                     cost: returnValue[j].cost
