@@ -113,8 +113,6 @@ class AdsController extends BaseController
             ],
             'khanhlinhvi.mega@gmail.com' => [
                 "495-513-6985",
-                "406-953-6438",
-                "180-648-9991",
                 "689-779-5991"
             ],
             'hanhtran111196@gmail.com' => [
@@ -129,18 +127,10 @@ class AdsController extends BaseController
                 '553-267-3226',
                 '177-380-5303'
             ],
-            // 'maidawngmegaads@gmail.com' => [
-            //     '553-267-3226',
-            //     '177-380-5303'
-            // ],
             'thuongnt.coupon@gmail.com' => [
                 '326-362-2447',
                 "398-022-7660"
             ],
-            // "thuylinh.megaads@gmail.com" => [
-            //     "351-292-4640",
-            //     "875-262-8652"
-            // ]
         ];
         $mails = [];
         foreach ($config as $mail => $accountIds) {
@@ -171,8 +161,9 @@ class AdsController extends BaseController
             'phuonganhcouponde@gmail.com' => [
                 'DE'
             ],
-            'maidawngmegaads@gmail.com:' => [
-                'ES'
+            'phuongtunguyen36.mega@gmail.com' => [
+                'ES', 
+                'IT'
             ],
             'thuongnt.coupon@gmail.com' => [
                 'JP'
